@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title>project table'as</title>
+    <style>
+table {
+    font-family: arial, sans-serif;
+    border-collapse: collapse;
+    width: 100%;
+}
+
+td, th {
+    border: 1px solid #dddddd;
+    text-align: left;
+    padding: 8px;
+}
+
+</style>
+  </head>
+  <body>
+    <table>
+      <tr>
+        <th>Name</th>
+        <th>Color</th>
+        <th>Indent</th>
+      </tr>
+
+      {% for project in post_list %}
+        {% if project.Indent is 1 %}
+        <tr>
+          <td>{{project.Project_name}}</td>
+          <td>{{project.Color}}</td>
+          <td>{{project.Indent}}</td>
+        </tr>
+
+        {% for task in tasks %}
+
+        {% if task.task_project_id.Project_ID == project.pk %}
+        <tr>
+          <td>TASK : {{task.task_Content}}, belong to {{task.task_project_id.Project_name}}</td>
+          <td></td>
+          <td></td>
+        </tr>
+
+
+        {% endif %}
+        {% endfor %}
+        {% endif %}
+        {% for item2 in post_list %}
+
+        {% if item2.Parent_id.Project_ID == project.Project_ID %}
+          <tr>
+            <td>Subproject of {{project.Project_name}}, Name is {{item2.Project_name}}</td>
+            <td>{{item2.Color}}</td>
+            <td>{{item2.Indent}}</td>
+          </tr>
+
+          {% for task in tasks %}
+          {% if task.task_project_id.Project_ID == item2.pk %}
+          <tr>
+            <td>TASK : {{task.task_Content}}, belong to {{task.task_project_id.Project_name}}</td>
+            <td></td>
+            <td></td>
+          </tr>
+
+
+          {% endif %}
+          {% endfor %}
+          {% endif %}
+
+
+
+
+
+
+
+            {% endfor %}
+
+
+
+
+
+      {% endfor %}
+    </table>
+  </body>
+</html>

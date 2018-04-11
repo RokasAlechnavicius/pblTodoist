@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title>Kappa List</title>
+    <style>
+table {
+    font-family: arial, sans-serif;
+    border-collapse: collapse;
+    width: 100%;
+}
+
+td, th {
+    border: 1px solid #dddddd;
+    text-align: left;
+    padding: 8px;
+}
+
+</style>
+  </head>
+
+  <body>
+    <table>
+      <tr>
+        <th>Name</th>
+        <th>Color</th>
+        <th>Indent</th>
+      </tr>
+{% for item in post_list %}
+{% if item.Indent is 1 %}
+<tr>
+  <td>{{item.Project_name}}</td>
+  <td>{{item.Color}}</td>
+  <td>{{item.Indent}}</td>
+</tr>
+
+{% for task in tasks %}
+
+{% if task.task_project_id.Project_ID == item.pk %}
+<tr>
+  <td>TASK : {{task.task_Content}}, belong to {{task.task_project_id.Project_name}}    task priority is : {{task.task_priority}}</td>
+  <td></td>
+  <td></td>
+</tr>
+
+
+{% endif %}
+{% endfor %}
+{% for item2 in post_list %}
+{% if item2.Parent_id.Project_ID == item.Project_ID %}
+  <tr>
+    <td>Subproject of {{item.Project_name}}, Name is {{item2.Project_name}}</td>
+    <td>{{item2.Color}}</td>
+    <td>{{item2.Indent}}</td>
+  </tr>
+
+  {% for task in tasks %}
+  {% if task.task_project_id.Project_ID == item2.pk %}
+  <tr>
+    <td>TASK : {{task.task_Content}}, belong to {{task.task_project_id.Project_name}}
+      task priority is : {{task.task_priority}}
+
+    </td>
+    <td></td>
+    <td></td>
+  </tr>
+
+
+  {% endif %}
+  {% endfor %}
+    {% endif %}
+      {% endfor %}
+
+{% endif %}
+
+{% endfor %}
+    </table>
+  </body>
+</html>
