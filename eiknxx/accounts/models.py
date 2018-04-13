@@ -36,7 +36,7 @@ class UserProfile(models.Model):
 
 
     def __str__(self):
-        return self.token
+        return str(self.token)
 
 
 def create_profile(sender,**kwargs):
