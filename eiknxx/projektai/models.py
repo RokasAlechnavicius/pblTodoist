@@ -1,5 +1,6 @@
 from django.db import models
 from accounts.models import UserProfile,Collaborator
+import datetime
 # Create your models here.
 class Projektas(models.Model):
     Project_token = models.ForeignKey(UserProfile,to_field='token',on_delete=models.PROTECT,null=True)
@@ -39,6 +40,7 @@ class Old_Projektas(models.Model):
     Indent = models.IntegerField(null=True,blank=True)
     is_deleted = models.IntegerField(null=True,blank=True)
     is_archived = models.IntegerField(null=True,blank=True)
+    when_deleted =models.DateTimeField(default=datetime.datetime.now())
 
 class Old_Task(models.Model):
     task_Content = models.TextField(null=True,blank=True)
@@ -54,3 +56,4 @@ class Old_Task(models.Model):
     checked = models.IntegerField(null=True,blank=True)
     in_history = models.IntegerField(null=True,blank=True)
     is_deleted = models.IntegerField(null=True,blank=True)
+    when_deleted =models.DateTimeField(default=datetime.datetime.now())

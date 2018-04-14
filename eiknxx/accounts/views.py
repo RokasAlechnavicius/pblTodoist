@@ -52,6 +52,8 @@ def profile(request):
                 'Parent_id': api.state['projects'][i]['parent_id'],
                 'Color': api.state['projects'][i]['color'],
                 'Indent': api.state['projects'][i]['indent'],
+                'is_deleted': api.state['projects'][i]['is_deleted'],
+                'is_archived': api.state['projects'][i]['is_archived'],
             }
         })
 
@@ -70,6 +72,9 @@ def profile(request):
                         'task_due_date_utc': datefix(api.state['items'][j]['due_date_utc']),
                         'task_uid': api.state['items'][j]['user_id'],
                         'task_responsible_uid': api.state['items'][j]['responsible_uid'],
+                        'checked': api.state['items'][j]['checked'],
+                        'in_history': api.state['items'][j]['in_history'],
+                        'is_deleted': api.state['items'][j]['is_deleted'],
                     }
                 })
 
