@@ -40,6 +40,17 @@ INSTALLED_APPS = [
     'projektai',
     'django_extensions',
     'accounts',
+    'dash',
+    'dash.contrib.layouts.android',
+    'dash.contrib.layouts.bootstrap2',
+    'dash.contrib.layouts.windows8',
+    'dash.contrib.plugins.dummy',
+    'dash.contrib.plugins.image',
+    'dash.contrib.plugins.memo',
+    'dash.contrib.plugins.rss_feed',
+    'dash.contrib.plugins.url',
+    'dash.contrib.plugins.video',
+    'dash.contrib.plugins.weather',
 ]
 
 MIDDLEWARE = [
@@ -121,3 +132,4 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/2.0/howto/static-files/
 
 STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR,'static')
