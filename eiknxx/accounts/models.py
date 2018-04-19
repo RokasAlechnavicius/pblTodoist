@@ -5,14 +5,14 @@ import json
 # Create your models here.
 
 class Collaborator(models.Model):
-    id = models.IntegerField(primary_key=True)
+    id = models.BigIntegerField(primary_key=True)
     email = models.EmailField(blank=True,null=True)
     full_name = models.CharField(max_length=50,blank=True,null=True)
 
 
 class UserProfile(models.Model):
     user = models.OneToOneField(User,on_delete=models.CASCADE)
-    userid = models.IntegerField(unique=True,blank=True,null=True)
+    userid = models.BigIntegerField(unique=True,blank=True,null=True)
     token = models.CharField(max_length=100,unique=True,blank=True,null=True)
     email = models.EmailField(unique=True,blank=True,null=True)
     full_name = models.CharField(max_length=100,blank=True,null=True)

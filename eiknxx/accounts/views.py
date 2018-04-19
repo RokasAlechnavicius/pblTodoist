@@ -5,6 +5,8 @@ import os
 from dateutil import parser
 import unicodedata2
 import subprocess
+from projektai.models import Projektas,Task
+import time
 
 def decode(strC):
     newStr = str(unicodedata2.normalize('NFKD', strC.encode('ascii','ignore')))[2:-1]
@@ -33,6 +35,12 @@ def datefix(dt):
 def profile(request):
     user = request.user
     api = TodoistAPI(user.userprofile.token)
+    # print(user.userprofile.token)
+    for project in Projektas.objects.filter(Project_token=user.userprofile.token):
+         for task in Task.objects.filter(task_project_id=project.Project_ID):
+             task.delete()
+         project.delete()
+
     api.sync()
     print(api)
     i = 0
@@ -41,6 +49,7 @@ def profile(request):
     dataT = {}
     data = []
     dataT = []
+    print(api.state['projects'])
     for item in api.state['projects']:
         pid = api.state['projects'][i]['id']
         data.append({
@@ -131,11 +140,24 @@ def profile(request):
             json.dump(dataC, fp)
     # command = ['cd']
     # subprocess.Popen(command)
+
     command2 = ['python','manage.py','loaddata','collaborators.json']
-    subprocess.Popen(command2)
+    # print("Collaborators sync started")
+    clap =  subprocess.Popen(command2)
+    while clap.poll() is None:
+        time.sleep(0.5)
+    # print("Collaborators synced")
     command3 = ['python','manage.py','loaddata','projects.json']
-    subprocess.Popen(command3)
+    # print("Projects sync started")
+    clap2 = subprocess.Popen(command3)
+    while clap2.poll() is None:
+        time.sleep(0.5)
+    # print("projects sync done")
     command4 = ['python','manage.py','loaddata','tasks.json']
-    subprocess.Popen(command4)
+    # print("Task sync started")
+    clap3 = subprocess.Popen(command4)
+    while clap3.poll() is None:
+        time.sleep(0.5)
+    # print("Tasks sync is Done")
     args ={'user':request.user}
     return render(request,'accounts/profile.html',args)

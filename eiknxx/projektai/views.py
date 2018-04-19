@@ -3,6 +3,7 @@ from django.views.generic.list import ListView
 from .fusioncharts import FusionCharts
 # Create your views here.
 from projektai.models import Projektas,Task
+import json
 
 
 # Loading Data from a Static JSON String
@@ -83,10 +84,50 @@ class KekView(ListView):
     queryset = Projektas.objects.all()
 
     def get_queryset(self):
-        return Projektas.objects.filter(Project_token=self.request.user.userprofile.token)
+        return Projektas.objects.filter(Project_token=self.request.user.userprofile.token,is_deleted=0).order_by('Project_ID')
 
 
     def get_context_data(self,**kwargs):
         context = super(KekView,self).get_context_data(**kwargs)
-        context['tasks']=Task.objects.all()
+        context['tasks']=Task.objects.filter(is_deleted=0)
+        ProjectIndents = []
+        NumberIndents = []
+        i=1
+        a=0
+        context['kekas']=len(Projektas.objects.filter(Project_token=self.request.user.userprofile.token,is_deleted=a))
+        for projektas in Projektas.objects.filter(Project_token=self.request.user.userprofile.token):
+            # print(projektas.Indent)
+            ProjectIndents.append(projektas.Indent)
+            NumberIndents.append(i)
+            i=i+1
+
+        labels = []
+        values = []
+        count = 0
+
+        for project in Projektas.objects.filter(Project_token=self.request.user.userprofile.token):
+            # labels.append(project.Project_name)
+            for task in Task.objects.filter(task_project_id=project.Project_ID):
+                # if project.Project_ID == task.task_project_id:
+                count = count + 1
+
+            if count != 0:
+                values.append(count)
+                name = project.Project_name
+                print(name)
+                labels.append(name)
+                # print(project.Project_name)
+            # values.append(count)
+            count = 0
+
+        kek = labels
+        print(type(kek))
+        # labels = json.dumps(kek)
+        # print(labels)
+        # labels = labels.replace('\"', 'QQQ')
+        # print(labels)
+        context['labels'] = kek
+        context['values'] = values
+        context['Indents'] = ProjectIndents
+        context['Xvalues'] = NumberIndents
         return context
