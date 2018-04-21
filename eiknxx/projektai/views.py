@@ -114,14 +114,14 @@ class KekView(ListView):
             if count != 0:
                 values.append(count)
                 name = project.Project_name
-                print(name)
+                # print(name)
                 labels.append(name)
                 # print(project.Project_name)
             # values.append(count)
             count = 0
 
         kek = labels
-        print(type(kek))
+        # print(type(kek))
         # labels = json.dumps(kek)
         # print(labels)
         # labels = labels.replace('\"', 'QQQ')

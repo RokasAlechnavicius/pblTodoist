@@ -45,7 +45,7 @@ td, th {
           <tr>
             <td>{{project.Project_name}}</td>
             <td>{{project.Color}}</td>
-            <td>{{project.Indent}}</td>
+            <td>{{project.Project_token}}</td>
           </tr>
 
           {% for task in tasks %}
@@ -60,9 +60,9 @@ td, th {
               {%if project2.Indent == 2%}
                 {% if project2.Parent_id.Project_ID == project.Project_ID %}
                   <tr>
-                    <td>{{project2.Project_name}} is a subproject of {{project.Project_name}}</td>
+                    <td>{{project2.Project_name}} is a subproject of {{project.Project_name}}, parent id is {{project2.Parent_id.Project_ID}}</td>
                     <td>{{project2.Color}}</td>
-                    <td>{{project2.Indent}}</td>
+                    <td>{{project2.Project_token}}</td>
                   </tr>
 
                   {%for project3 in post_list%}
@@ -71,13 +71,13 @@ td, th {
                       <tr>
                         <td>{{project3.Project_name}} is a subproject of {{project.Project_name}}</td>
                         <td>{{project3.Color}}</td>
-                        <td>{{project3.Indent}}</td>
+                        <td>{{project3.Project_token}}</td>
                       </tr>
                     {%elif project3.Parent_id.Project_ID == project2.Project_ID%}
                       <tr>
                         <td>{{project3.Project_name}} is a subproject of {{project2.Project_name}}</td>
                         <td>{{project3.Color}}</td>
-                        <td>{{project3.Indent}}</td>
+                        <td>{{project3.Project_token}}</td>
                       </tr>
 
                     {%endif%}
