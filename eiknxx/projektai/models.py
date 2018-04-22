@@ -1,12 +1,16 @@
 from django.db import models
 from accounts.models import UserProfile,Collaborator
 import datetime
+from django.utils import timezone
 # Create your models here.
 
 
 class SyncedStuff(models.Model):
     token = models.ForeignKey(UserProfile,to_field='token',on_delete=models.CASCADE)
-    sync_time = models.DateTimeField(default=datetime.datetime.now())
+    sync_time = models.DateTimeField(default=datetime.datetime.now(tz=timezone.utc))
+
+    def __str__(self):
+        return str(self.sync_time) + "sync for user " + str(self.token)
 
 class Projektas(models.Model):
     Project_token = models.ForeignKey(UserProfile,to_field='token',on_delete=models.CASCADE,null=True)
@@ -41,7 +45,7 @@ class Task(models.Model):
 
 
 class Old_Projektas(models.Model):
-    Project_token = models.ForeignKey(UserProfile,to_field='token',on_delete=models.PROTECT,null=True)
+    Project_token = models.ForeignKey(UserProfile,to_field='token',on_delete=models.CASCADE,null=True)
     Project_name = models.CharField(max_length=100)
     Project_ID = models.BigIntegerField(null=True,blank=True)
     Parent_id = models.BigIntegerField(null=True,blank=True)
@@ -49,12 +53,13 @@ class Old_Projektas(models.Model):
     Indent = models.IntegerField(null=True,blank=True)
     is_deleted = models.IntegerField(null=True,blank=True)
     is_archived = models.IntegerField(null=True,blank=True)
-    when_deleted =models.DateTimeField(default=datetime.datetime.now())
+    when_deleted =models.DateTimeField(default=datetime.datetime.now(tz=timezone.utc))
 
     def __str__(self):
         return str(self.Project_name)
 
 class Old_Task(models.Model):
+    Task_token = models.ForeignKey(UserProfile,to_field='token',on_delete=models.CASCADE,null=True)
     task_Content = models.TextField(null=True,blank=True)
     task_id = models.BigIntegerField()
     task_project_id = models.BigIntegerField()
@@ -68,4 +73,4 @@ class Old_Task(models.Model):
     checked = models.IntegerField(null=True,blank=True)
     in_history = models.IntegerField(null=True,blank=True)
     is_deleted = models.IntegerField(null=True,blank=True)
-    when_deleted =models.DateTimeField(default=datetime.datetime.now())
+    when_deleted =models.DateTimeField(default=datetime.datetime.now(tz=timezone.utc))

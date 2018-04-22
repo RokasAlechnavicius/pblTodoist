@@ -6,4 +6,5 @@ app_name = 'accounts'
 urlpatterns = [
     url(r'^profile/$', views.profile,name = 'profile'),
     url(r'^resync/$', views.resync,name = 'resync'),
+
 ]
