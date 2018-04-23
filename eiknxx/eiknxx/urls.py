@@ -16,10 +16,16 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 from django.conf.urls import url, include
+from eiknxx import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     url(r"^projektai/",include('projektai.urls'),name='projektai'),
-    url(r"^accounts/",include('accounts.urls'),name='accounts')
+    url(r"^accounts/",include('accounts.urls'),name='accounts'),
+    url(r"^$", views.HomePage.as_view(), name="home"),
+    url(r"^test/$", views.TestPage.as_view(), name="test"),
+    url(r'^about/$', views.AboutPage.as_view(),name='about'),
+    url(r"^thanks/$", views.ThanksPage.as_view(), name="thanks"),
+    url(r"^accounts/", include("django.contrib.auth.urls")),
 
 ]

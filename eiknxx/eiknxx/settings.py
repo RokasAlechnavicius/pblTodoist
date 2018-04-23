@@ -51,6 +51,8 @@ INSTALLED_APPS = [
     'dash.contrib.plugins.url',
     'dash.contrib.plugins.video',
     'dash.contrib.plugins.weather',
+    'rest_framework',
+    'bootstrap3',
 ]
 
 MIDDLEWARE = [
@@ -137,3 +139,4 @@ USE_TZ = False
 
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR,'static')
+LOGOUT_REDIRECT_URL = "thanks"

@@ -4,6 +4,11 @@
     <meta charset="utf-8">
     <title>project table'as</title>
      <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.js">
+     </script>
+     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.bundle.js">
+
+     </script>
     <style>
 table {
     font-family: arial, sans-serif;
@@ -20,6 +25,7 @@ td, th {
 </style>
   </head>
   <body>
+  <!-- <canvas id="myPieChart" width="400" height="400"></canvas> -->
     <h2>{{labels}}</h2>
     <h2>{{values}}</h2>
     <div id="myDiv"><!-- Plotly chart will be drawn inside this DIV --></div>
@@ -32,6 +38,15 @@ td, th {
   }];
   Plotly.newPlot('myDiv', data);
 </script>
+<!-- <script>
+var ctx = document.getElementById("myPieChart");
+  var myPieChart = new Chart(ctx,{
+    type:'pie',
+    data: {{stuff|safe}},
+    options: [],
+  })
+</script> -->
+
 
     <h1>{{kekas}}</h1>
     <table>

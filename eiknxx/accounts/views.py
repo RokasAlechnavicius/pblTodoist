@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render,redirect
 from todoist.api import TodoistAPI
 import json
 import os
@@ -9,6 +9,33 @@ from projektai.models import Projektas,Task,Old_Task,Old_Projektas,SyncedStuff
 from django.core import serializers
 import time
 import datetime
+from django.contrib.auth import login, logout
+from django.urls import reverse_lazy
+from django.views.generic import CreateView
+from accounts.forms import EditProfileInformationForm
+
+from . import forms
+
+class SignUp(CreateView):
+    form_class = forms.UserCreateForm
+    success_url = reverse_lazy("login")
+    template_name = "accounts/signup.html"
+
+
+def edit_profile(request):
+    if request.method == 'POST' :
+        profile_form = EditProfileInformationForm(data=request.POST,instance = request.user.userprofile)
+        if profile_form.is_valid():
+            profile_form.save()
+            return redirect('/accounts/profile')
+        else:
+            print(user_form.errors,profile_form.errors)
+
+    else:
+        profile_form = EditProfileInformationForm(instance = request.user.userprofile)
+    args = {'profile_form':profile_form}
+    return render(request,'accounts/profileform.html',args)
+
 
 
 def resyncing(token,profilis):
@@ -293,7 +320,10 @@ def datefix(dt):
 # Create your views here.
 def profile(request):
     user = request.user
-    syncTodoist(user.userprofile.token)
+    if user.userprofile.token is None:
+        return edit_profile(request)
+    else:
+        # syncTodoist(user.userprofile.token)
     # print("Tasks sync is Done")
-    args ={'user':request.user}
-    return render(request,'accounts/profile.html',args)
+        args ={'user':request.user}
+        return render(request,'accounts/profile.html',args)
