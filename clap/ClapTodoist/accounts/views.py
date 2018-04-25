@@ -22,6 +22,15 @@ class SignUp(CreateView):
     success_url = reverse_lazy("login")
     template_name = "accounts/signup.html"
 
+def make_dir(input_stringP):
+    os.chdir('users')
+    dirpath = (input_stringP)
+    try:
+        os.makedirs(dirpath)
+    except FileExistsError:
+        print('Directory {} already exists'.format(dirpath))
+    else:
+        print('Directory {} created'.format(dirpath))
 
 def edit_profile(request):
     user = request.user
@@ -188,7 +197,8 @@ def syncTodoist(token):
     # is_deleted = models.IntegerField(null=True,blank=True)
     # is_archived = models.IntegerField(null=True,blank=True)
     # when_deleted =models.DateTimeField(default=datetime.datetime.now())
-
+    make_dir(token)
+    os.chdir(token)
     api = TodoistAPI(token)
     for project in Projektas.objects.filter(Project_token=token):
          for task in Task.objects.filter(task_project_id=project.Project_ID):
@@ -261,17 +271,19 @@ def syncTodoist(token):
         i = i + 1
     # command = ['cd']
     # subprocess.Popen(command)
-    command3 = ['python','manage.py','loaddata','projects.json']
+    os.chdir('..')
+    os.chdir('..')
+    command3 = ['python','manage.py','loaddata','users/' + token +'/projects.json']
     # print("Projects sync started")
     clap2 = subprocess.Popen(command3)
     while clap2.poll() is None:
-        time.sleep(1.5)
+        time.sleep(2.5)
     # print("projects sync done")
-    command4 = ['python','manage.py','loaddata','tasks.json']
+    command4 = ['python','manage.py','loaddata','users/' + token +'/tasks.json']
     # print("Task sync started")
     clap3 = subprocess.Popen(command4)
     while clap3.poll() is None:
-        time.sleep(2.5)
+        time.sleep(0.5)
 
 
     # print('we did it reddit')
