@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block content %}
+<script>
+$(document).ready(function() {
+
+        $('#calendar').fullCalendar({
+            defaultDate: '2018-02-19',
+            header: {
+              left: 'month,agendaWeek,agendaDay custom1',
+              center: 'title',
+              right: 'custom2 prevYear,prev,next,nextYear'
+            },
+            selectable: true,
+            // eventLimit: true, // allow "more" link when too many events
+            events: [
+                {% for i in events %}
+                {
+                    title: "{{ i.task_Content}}",
+                    start: '{{ i.task_due_date_utc|date:"Y-m-d" }}',
+                    end: '{{ i.task_due_date_utc|date:"Y-m-d" }}',
+
+                },
+                {% endfor %}
+
+
+            ],
+            select: function(start, end, allDay)
+           {
+               $('#calendar').fullCalendar('gotoDate', start);
+               $('#calendar').fullCalendar('changeView', 'agendaDay');
+           },
+
+        });
+
+    });
+
+</script>
+<div id='calendar'>
+
+</div>
+
+{% endblock %}

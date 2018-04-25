@@ -1,0 +1,106 @@
+{% extends "base.html"%}
+{% block content %}
+  <!-- <canvas id="myPieChart" width="400" height="400"></canvas> -->
+    <div id="myDiv"><!-- Plotly chart will be drawn inside this DIV --></div> -->
+<script>
+
+  var data = [{
+    values: {{values}},
+    labels: {{labels|safe}},
+    type: 'pie'
+  }];
+  Plotly.newPlot('myDiv', data);
+</script>
+<!-- <script>
+var ctx = document.getElementById("myPieChart");
+  var myPieChart = new Chart(ctx,{
+    type:'pie',
+    data: {{stuff|safe}},
+    options: [],
+  })
+</script> -->
+
+
+    <h1>{{kekas}}</h1>
+    <table>
+      <tr>
+        <th>Name</th>
+        <th>Color</th>
+        <th>Indent</th>
+      </tr>
+      {% for project in post_list %}
+        {% if project.Indent is 1 %}
+          <tr>
+            <td>{{project.Project_name}}</td>
+            <td>{{project.Color}}</td>
+            <td>{{project.Indent}}</td>
+          </tr>
+
+          {% for task in tasks %}
+            {% if task.task_project_id.Project_ID == project.Project_ID %}
+            <tr>
+              <td></td>
+              <td>Task named : {{task.task_Content}} belongs to {{project.Project_name}}</td>
+            </tr>
+            {%endif%}
+            {%endfor%}
+            {% for project2 in post_list %}
+              {%if project2.Indent == 2%}
+                {% if project2.Parent_id.Project_ID == project.Project_ID %}
+                  <tr>
+                    <td>{{project2.Project_name}} is a subproject of {{project.Project_name}}</td>
+                    <td>{{project2.Color}}</td>
+                    <td>{{project2.Indent}}</td>
+                  </tr>
+
+                  {%for project3 in post_list%}
+                    {%if project3.Indent == 3 %}
+                      {%if project3.Parent_id.Project_ID == project.Project_ID%}
+                      <tr>
+                        <td>{{project3.Project_name}} is a subproject of {{project.Project_name}}</td>
+                        <td>{{project3.Color}}</td>
+                        <td>{{project3.Indent}}</td>
+                      </tr>
+                    {%elif project3.Parent_id.Project_ID == project2.Project_ID%}
+                      <tr>
+                        <td>{{project3.Project_name}} is a subproject of {{project2.Project_name}}</td>
+                        <td>{{project3.Color}}</td>
+                        <td>{{project3.Indent}}</td>
+                      </tr>
+
+                    {%endif%}
+                      {%for project4 in post_list%}
+                        {%if project4.Indent == 4 %}
+                        {% if project4.Parent_id.Project_ID == project.Project_ID %}
+                          <tr>
+                            <td>{{project4.Project_name}} is a subproject of {{project.Project_name}}</td>
+                            <td>{{project4.Color}}</td>
+                            <td>{{project4.Indent}}</td>
+                          </tr>
+                        {%elif project4.Parent_id.Project_ID == project2.Project_ID%}
+                        <tr>
+                          <td>{{project4.Project_name}} is a subproject of {{project2.Project_name}}</td>
+                          <td>{{project4.Color}}</td>
+                          <td>{{project4.Indent}}</td>
+                        </tr>
+                        {%elif project4.Parent_id.Project_ID == project3.Project_ID%}
+                        <tr>
+                          <td>{{project4.Project_name}} is a subproject of {{project3.Project_name}}</td>
+                          <td>{{project4.Color}}</td>
+                          <td>{{project4.Indent}}</td>
+                        </tr>
+                        {%endif%}
+                        {%endif%}
+                      {%endfor%}
+                    {%endif%}
+                  {%endfor%}
+                {%endif%}
+              {%endif%}
+            {%endfor%}
+
+
+          {% endif %}
+
+      {% endfor %}
+    </table>
+{% endblock %}
