@@ -1,19 +1,21 @@
 from django.shortcuts import render
 from django.views.generic.list import ListView
+from django.views.generic import TemplateView
 from .fusioncharts import FusionCharts
 # Create your views here.
-from projektai.models import Projektas,Task
+from projektai.models import Projektas,Task,SyncedStuff
 import json
 from django.http import JsonResponse,HttpResponse
 import datetime
-
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.decorators import login_required
 
 
 # Loading Data from a Static JSON String
 # Example to create a Column 2D chart with the chart data passed in JSON string format.
 # The `fc_json` method is defined to load chart data from a JSON string.
 # **Step 1:** Create the FusionCharts object in a view action
-
+@login_required(login_url = 'login')
 def megakek(request):
     user = request.user
     all_events = Task.objects.filter(task_token=user.userprofile.token).exclude(task_due_date_utc__isnull=True,)
@@ -37,20 +39,71 @@ def megakek(request):
   # Alternatively, you can assign this string to a string variable in a separate JSON file and
   # pass the URL of that file to the `dataSource` parameter.
 
+class DashboardView(LoginRequiredMixin,TemplateView):
+    template_name = 'projektai/dashboard.html'
 
-
-
-class IndexView(ListView):
+class IndexView(LoginRequiredMixin, ListView):
     context_object_name = 'post_list'
     template_name = 'projektai/index.html'
-    queryset = Projektas.objects.all()
+
+    def get_queryset(self):
+        return Projektas.objects.filter(Project_token=self.request.user.userprofile.token,is_deleted=0).order_by('Project_ID')
 
     def get_context_data(self,**kwargs):
         context = super(IndexView,self).get_context_data(**kwargs)
-        context['tasks']=Task.objects.order_by('task_priority')
+        context['old_sync'] = SyncedStuff.objects.filter(token = self.request.user.userprofile).order_by('-sync_time')
+        all_tasks = Task.objects.filter(task_token=self.request.user.userprofile.token).count()
+        checked_tasks = Task.objects.filter(task_token=self.request.user.userprofile.token,checked=1).count()
+        if checked_tasks is not 0:
+            floaterino = checked_tasks/all_tasks*100
+            context['tasks_completed'] = int(floaterino)
+        else:
+            context['tasks_completed'] = 0
+        current_time = datetime.datetime.now()
+        timed_tasks = Task.objects.filter(task_token=self.request.user.userprofile.token,task_due_date_utc__lte=current_time,checked=0).count()
+        timed_completed_tasks = Task.objects.filter(task_token=self.request.user.userprofile.token,task_due_date_utc__isnull=False).count()
+        # print(timed_tasks)
+        if timed_tasks is not 0:
+            overdue_tasks = timed_tasks/all_tasks*100
+            context['overdue']= int(overdue_tasks)
+        else:
+            context['overdue']= 0
+        if timed_completed_tasks is not 0:
+            overdue_completed_tasks = timed_completed_tasks/all_tasks*100
+            context['deadline'] = int(overdue_completed_tasks)
+        else:
+            context['deadline'] = 0
+        labels = []
+        values = []
+        count = 0
+
+        for project in Projektas.objects.filter(Project_token=self.request.user.userprofile.token):
+            # labels.append(project.Project_name)
+            for task in Task.objects.filter(task_project_id=project.Project_ID):
+                # if project.Project_ID == task.task_project_id:
+                count = count + 1
+
+            if count != 0:
+                values.append(count)
+                name = project.Project_name
+                # print(name)
+                labels.append(name)
+                # print(project.Project_name)
+            # values.append(count)
+            count = 0
+
+
+        context['labels'] = labels
+        context['values'] = values
         return context
 
-class KekView(ListView):
+#def index(request):
+    #return render(request, 'accounts/index.html')
+
+
+
+
+class KekView(LoginRequiredMixin, ListView):
     context_object_name = 'post_list'
     template_name = 'projektai/kek.html'
     queryset = Projektas.objects.all()

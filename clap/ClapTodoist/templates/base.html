@@ -23,6 +23,37 @@
    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.bundle.js"></script>
 
   <style>
+  #calendar-container {
+    position: fixed;
+    top: 100px;
+    left: 50px;
+    right: 50px;
+    bottom: 50px;
+  }
+
+  .demo-topbar { /* will be stripped out */
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 40px;
+  }
+
+  .demo-topbar + #calendar-container { /* will be stripped out */
+    top: 40px;
+  }
+
+  .fc-header-toolbar {
+    /*
+    the calendar will be butting up against the edges,
+    but let's scoot in the header's buttons
+    */
+    padding-top: 1em;
+    padding-left: 1em;
+    padding-right: 1em;
+  }
+
+
 table {
   font-family: arial, sans-serif;
   border-collapse: collapse;
@@ -54,6 +85,7 @@ td, th {
                       <li><a href="{% url 'accounts:login' %}" class="btn btn-simple">Log in</a></li>
                       <li><a href="{% url 'accounts:signup' %}" class="btn btn-simple">Sign up</a></li>
                 {% endif %}
+                  <li><a href="{% url 'projektai:dashboard' %}" class="btn btn-simple">Second dashboard version in the making</a></li>
               </ul>
 
 

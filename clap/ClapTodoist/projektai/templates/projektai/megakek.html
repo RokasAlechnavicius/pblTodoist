@@ -4,7 +4,8 @@
 $(document).ready(function() {
 
         $('#calendar').fullCalendar({
-            defaultDate: '2018-02-19',
+            // defaultDate: '2018-04-19',
+            height: 'parent',
             header: {
               left: 'month,agendaWeek,agendaDay custom1',
               center: 'title',
@@ -35,8 +36,11 @@ $(document).ready(function() {
     });
 
 </script>
-<div id='calendar'>
+<div id=calendar-container>
+  <div id='calendar'>
 
+  </div>
 </div>
+
 
 {% endblock %}

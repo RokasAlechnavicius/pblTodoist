@@ -1,5 +1,349 @@
-{% extends "base.html" %}
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		{% load static %}
+		<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+		<meta charset="utf-8">
+		<title>Bootstrap 3 Control Panel</title>
+		<meta name="generator" content="Bootply" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+		<link href={% static 'css/bootstrap.min.css' %} rel="stylesheet">
+		<!--[if lt IE 9]>
+			<script src="//html5shim.googlecode.com/svn/trunk/html5.js"></script>
+		<![endif]-->
+		<link href={% static 'css/styles.css' %} rel="stylesheet">
+		{% load static %}
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
 
-{% block content %}
-<h3>Benai kur dashboardas</h3>
-{% endblock %}
+		<!-- Optional theme -->
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+		<!-- Latest compiled and minified JavaScript -->
+		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+		<script src="http://cdn.jsdelivr.net/qtip2/3.0.3/jquery.qtip.min.js"></script>
+		<link rel="stylesheet" href="http://cdn.jsdelivr.net/qtip2/3.0.3/jquery.qtip.min.css">
+		<script src="{% static 'fullcalendar/bootstrap.js' %}"></script>
+		<link rel='stylesheet' href="{% static 'fullcalendar/fullcalendar.css' %}" />
+	 <script src="{% static 'fullcalendar/jquery.min.js' %}"></script>
+	 <script src="{% static 'fullcalendar/moment.min.js' %}"></script>
+	 <script src="{% static 'fullcalendar/fullcalendar.js' %}"></script>
+	 <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+	 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.js">
+	 </script>
+	 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.bundle.js"></script>
+	 <script src="https://cdnjs.cloudflare.com/ajax/libs/numeric/1.2.6/numeric.min.js"></script>
+	</head>
+	<body>
+<!-- Header -->
+<nav class="navbar  mynav navbar-inverse" role="navigation" id="navbar">
+			<div class="container-fluid">
+				<div class="navbar-header">
+				<a class="navbar-brand mynav" href="{% url 'projektai:nani' %}">Clapdoist</a>
+					<ul class="nav navbar-nav navbar-right">
+						{% if user.is_authenticated %}
+						<li><a class="navbar-link" href="{% url 'admin:index' %}">Admin</a></li>
+						<!-- <li><a href="{% url 'accounts:resync' %}" class="btn btn-simple">Resync your data</a></li> -->
+						<li><a href="{% url 'projektai:post_listas' %}" class="btn btn-simple">Table and stuff</a></li>
+						<li><a href="{% url 'projektai:megakek' %}" class="btn btn-simple">Soon to be Calendar</a></li>
+							<li><a href="{% url 'accounts:logout' %}" class="btn btn-simple">Log out</a></li>
+						{% else %}
+									<li><a href="#"class="btn btn-simple"></a></li>
+									<li><a href="{% url 'accounts:login' %}" class="btn btn-simple">Log in</a></li>
+									<li><a href="{% url 'accounts:signup' %}" class="btn btn-simple">Sign up</a></li>
+						{% endif %}
+						<li><a href="{% url 'projektai:dashboard' %}" class="btn btn-simple">Second dashboard version in the making</a></li>
+
+
+					</ul>
+
+
+
+			</div>
+		</div>
+		</nav>
+</div>
+<!-- /Header -->
+
+<!-- Main -->
+<div class="container">
+
+  <!-- upper section -->
+  <div class="row">
+	<div class="col-sm-3">
+
+      <!-- left -->
+      <h3><i class="glyphicon glyphicon-briefcase"></i> Toolbox</h3>
+      <hr>
+
+      <ul class="nav nav-stacked">
+
+        <!-- <li><a href="{% url 'projektai:megakek'  %}" ><i class="glyphicon glyphicon-link"></i> Calendar</a></li> -->
+        <li><a href="{% url 'accounts:resync' %}" ><i class="glyphicon glyphicon-link"></i> Resync your data</a></li>
+        <!-- <li><a href="{% url 'projektai:post_listas' %}" ><i class="glyphicon glyphicon-link"></i> Table and stuff</a></li> -->
+      </ul>
+			<div class = "row">
+				<div class="col-md-12">
+					<table class = "table table-striped">
+						<thead>
+							<tr><th>Latest Syncs: </th></tr>
+						</thead>
+						<tbody>
+							{% for item in old_sync %}
+								<tr>
+					  			<td> {{item.sync_time}} </td>
+								</tr>
+						{% endfor %}
+					</table>
+					</div>
+				</div>
+
+      <hr>
+
+  	</div><!-- /span-3 -->
+    <div class="col-sm-9">
+
+      <!-- column 2 -->
+       <h3><i class="glyphicon glyphicon-dashboard"></i>Dashboard</h3>
+
+       <hr>
+
+	   <div class="row">
+            <!-- center left-->
+         	<div class="col-md-7">
+			  <div class="well">Placeholder <span class="badge pull-right">3</span></div>
+
+              <hr>
+
+              <div class="panel panel-default">
+                  <div class="panel-heading"><h4>Processing Status</h4></div>
+                  <div class="panel-body">
+
+                    <small>Percentage of completed tasks</small>
+                    <div class="progress">
+                      <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="{{tasks_completed}}" aria-valuemin="0" aria-valuemax="100" style="width: {{tasks_completed}}%">
+                        {{tasks_completed}}%
+                      </div>
+                    </div>
+                    <small>Tasks that have deadlines assigned</small>
+                    <div class="progress">
+                      <div class="progress-bar progress-bar-info" role="progressbar" aria-valuenow="{{overdue_completed}}" aria-valuemin="0" aria-valuemax="100" style="width: {{deadline}}%">
+                        {{deadline}}%
+                      </div>
+                    </div>
+                    <small>Overdue incompleted tasks</small>
+                    <div class="progress">
+                      <div class="progress-bar progress-bar-danger" role="progressbar" aria-valuenow="{{overdue}}" aria-valuemin="0" aria-valuemax="100" style="width: {{overdue}}%">
+                        {{overdue}}%
+                      </div>
+                    </div>
+
+                  </div><!--/panel-body-->
+              </div><!--/panel-->
+
+          	</div><!--/col-->
+
+            <!--center-right-->
+        	<div class="col-md-5">
+
+                <ul class="nav nav-justified">
+         			<li><a href="#"><i class="glyphicon glyphicon-cog"></i></a></li>
+                    <li><a href="#"><i class="glyphicon glyphicon-heart"></i></a></li>
+         			<li class="dropdown"><a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="glyphicon glyphicon-comment"></i><span class="count">3</span></a><ul class="dropdown-menu" role="menu"><li><a href="#">1. Is there a way..</a></li><li><a href="#">2. Hello, admin. I would..</a></li><li><a href="#"><strong>All messages</strong></a></li></ul></li>
+         			<li><a href="#"><i class="glyphicon glyphicon-user"></i></a></li>
+         			<li><a title="Add Widget" data-toggle="modal" href="#addWidgetModal"><span class="glyphicon glyphicon-plus-sign"></span></a></li>
+       			</ul>
+
+                <hr>
+
+
+								<div class = "row">
+								<div class="col-md-12">
+
+						      <div class="panel panel-default">
+						        <div class="panel-heading"><div class="panel-title"><h4>Engagement</h4></div></div>
+						        <div class="panel-body">
+																					<div id="myDiv"><!-- Plotly chart will be drawn inside this DIV --></div>
+						        </div>
+						      </div><!--/panel-->
+						    </div><!--/col-->
+							</div>
+			</div><!--/col-span-6-->
+
+
+       </div><!--/row-->
+  	</div><!--/col-span-9-->
+
+  </div><!--/row-->
+	<script>
+      var data = [{
+          values: {{ values }},
+          labels: {{ labels|safe }},
+          type: 'pie',
+      }];
+			var layout = {showlegend: false,
+				title: 'Task count by project',
+    legend: {"orientation": "h"}};
+
+    Plotly.newPlot('myDiv', data,layout);
+  </script>
+	<h3>Projects</h3>
+  <div class="row">
+    <div class="col-md-8 col-lg-8">
+
+      <table class="table table-striped">
+        <thead>
+          <tr><th>Name</th><th>Color</th><th>Indent</th>
+        </thead>
+        <tbody>
+					{% for project in post_list %}
+		        {% if project.Indent is 1 %}
+		          <tr>
+		            <td>{{project.Project_name}}</td>
+		            <td>{{project.Color}}</td>
+		            <td>{{project.Indent}}</td>
+		          </tr>
+
+		          {% for task in tasks %}
+		            {% if task.task_project_id.Project_ID == project.Project_ID %}
+		            <tr>
+		              <td></td>
+		              <td>Task named : {{task.task_Content}} belongs to {{project.Project_name}}</td>
+		            </tr>
+		            {%endif%}
+		            {%endfor%}
+		            {% for project2 in post_list %}
+		              {%if project2.Indent == 2%}
+		                {% if project2.Parent_id.Project_ID == project.Project_ID %}
+		                  <tr>
+		                    <td>{{project2.Project_name}} is a subproject of {{project.Project_name}}</td>
+		                    <td>{{project2.Color}}</td>
+		                    <td>{{project2.Indent}}</td>
+		                  </tr>
+
+		                  {%for project3 in post_list%}
+		                    {%if project3.Indent == 3 %}
+		                      {%if project3.Parent_id.Project_ID == project.Project_ID%}
+		                      <tr>
+		                        <td>{{project3.Project_name}} is a subproject of {{project.Project_name}}</td>
+		                        <td>{{project3.Color}}</td>
+		                        <td>{{project3.Indent}}</td>
+		                      </tr>
+		                    {%elif project3.Parent_id.Project_ID == project2.Project_ID%}
+		                      <tr>
+		                        <td>{{project3.Project_name}} is a subproject of {{project2.Project_name}}</td>
+		                        <td>{{project3.Color}}</td>
+		                        <td>{{project3.Indent}}</td>
+		                      </tr>
+
+		                    {%endif%}
+		                      {%for project4 in post_list%}
+		                        {%if project4.Indent == 4 %}
+		                        {% if project4.Parent_id.Project_ID == project.Project_ID %}
+		                          <tr>
+		                            <td>{{project4.Project_name}} is a subproject of {{project.Project_name}}</td>
+		                            <td>{{project4.Color}}</td>
+		                            <td>{{project4.Indent}}</td>
+		                          </tr>
+		                        {%elif project4.Parent_id.Project_ID == project2.Project_ID%}
+		                        <tr>
+		                          <td>{{project4.Project_name}} is a subproject of {{project2.Project_name}}</td>
+		                          <td>{{project4.Color}}</td>
+		                          <td>{{project4.Indent}}</td>
+		                        </tr>
+		                        {%elif project4.Parent_id.Project_ID == project3.Project_ID%}
+		                        <tr>
+		                          <td>{{project4.Project_name}} is a subproject of {{project3.Project_name}}</td>
+		                          <td>{{project4.Color}}</td>
+		                          <td>{{project4.Indent}}</td>
+		                        </tr>
+		                        {%endif%}
+		                        {%endif%}
+		                      {%endfor%}
+		                    {%endif%}
+		                  {%endfor%}
+		                {%endif%}
+		              {%endif%}
+		            {%endfor%}
+
+
+		          {% endif %}
+
+		      {% endfor %}
+        </tbody>
+      </table>
+
+      <hr>
+
+      <!--tabs-->
+      <div class="container">
+        <ul class="nav nav-tabs" id="myTab">
+          <li class="active"><a href="#profile" data-toggle="tab">Profile</a></li>
+          <li><a href="#messages" data-toggle="tab">Messages</a></li>
+          <li><a href="#settings" data-toggle="tab">Settings</a></li>
+        </ul>
+
+        <div class="tab-content">
+          <div class="tab-pane active" id="profile">
+            <h4><i class="glyphicon glyphicon-user"></i></h4>
+          	I might use this
+          </div>
+          <div class="tab-pane" id="messages">
+            <h4><i class="glyphicon glyphicon-comment"></i></h4>
+            And this
+          </div>
+          <div class="tab-pane" id="settings">
+            <h4><i class="glyphicon glyphicon-cog"></i></h4>
+            And maybe even this
+          </div>
+        </div>
+      </div>
+      <!--/tabs-->
+
+      <hr>
+
+
+      <hr>
+
+      <div class="alert alert-info">
+        <button type="button" class="close" data-dismiss="alert">×</button>
+        Please remember to <a href="#">Logout</a> for classified security.
+      </div>
+
+
+    </div>
+
+
+  </div><!--/row-->
+
+</div><!--/container-->
+<!-- /Main -->
+
+
+
+
+
+<div class="modal" id="addWidgetModal">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+        <h4 class="modal-title">Add Widget</h4>
+      </div>
+      <div class="modal-body">
+        <p>Add a widget stuff here..</p>
+      </div>
+      <div class="modal-footer">
+        <a href="#" class="btn">Close</a>
+        <a href="#" class="btn btn-primary">Save changes</a>
+      </div>
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dalog -->
+</div><!-- /.modal -->
+
+
+
+
+	<!-- script references -->
+		<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.2/jquery.min.js"></script>
+		<script src={% static "js/bootstrap.min.js" %}></script>
+	</body>
+</html>

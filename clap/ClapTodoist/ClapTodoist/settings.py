@@ -81,13 +81,12 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'TodoistStuff',
-        'USER':'postgres',
-        'PASSWORD':'topkekas',
-        'HOST':'localhost',
-        'PORT':'',
+        'USER': 'postgres',
+        'PASSWORD': 'topkekas',
+        'HOST': 'localhost',
+        'PORT': '',
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/2.0/ref/settings/#auth-password-validators

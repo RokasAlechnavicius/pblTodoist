@@ -14,8 +14,10 @@ from django.urls import reverse_lazy
 from django.views.generic import CreateView
 from accounts.forms import EditProfileInformationForm
 from .models import Collaborator
-
+from projektai.views import IndexView
 from . import forms
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.decorators import login_required
 
 class SignUp(CreateView):
     form_class = forms.UserCreateForm
@@ -32,6 +34,7 @@ def make_dir(input_stringP):
     else:
         print('Directory {} created'.format(dirpath))
 
+@login_required(login_url = 'login')
 def edit_profile(request):
     user = request.user
     if request.method == 'POST' :
@@ -41,7 +44,7 @@ def edit_profile(request):
             syncTodoist(user.userprofile.token)
             return redirect('/projektai/')
         else:
-            print(user_form.errors,profile_form.errors)
+            print(profile_form.errors)
 
     else:
         profile_form = EditProfileInformationForm(instance = request.user.userprofile)
@@ -128,7 +131,7 @@ def i_am_check(token):
     a=1
     nani = SyncedStuff.objects.filter(token = token).order_by('sync_time')
     for synced in SyncedStuff.objects.filter(token = token).order_by('sync_time'):
-        if a == 1 and len(nani)>4:
+        if a == 1 and len(nani)>5:
             Old_Projektas.objects.filter(Project_token=token,when_deleted=synced.sync_time).delete()
             Old_Task.objects.filter(Task_token=token,when_deleted=synced.sync_time).delete()
             synced.delete()
@@ -207,6 +210,7 @@ def syncTodoist(token):
 
     api.sync()
     i = 0
+    Collaborator.objects.get_or_create(id = api.state['user']['id'])
     for item in api.state['collaborators']:
         Collaborator.objects.get_or_create(id=api.state['collaborators'][i]['id'],
                                             email=api.state['collaborators'][i]['email'],
@@ -269,34 +273,49 @@ def syncTodoist(token):
             json.dump(data, fp)
         j = 0
         i = i + 1
+    i = 0
+    dataC = []
+    for item in api.state['collaborators']:
+        dataC.append({
+            "model": "accounts.collaborator",
+            "pk": api.state['collaborators'][i]['id'],
+            "fields": {
+                "email": api.state['collaborators'][i]['email'],
+                "full_name": str(unicodedata2.normalize('NFKD', (api.state['collaborators'][i]['full_name'])).encode('ascii','ignore'))[2:-1]
+            }})
+        i = i + 1
+
+        with open('collaborators.json', 'w') as fp:
+            json.dump(dataC, fp)
     # command = ['cd']
     # subprocess.Popen(command)
     os.chdir('..')
     os.chdir('..')
     command3 = ['python','manage.py','loaddata','users/' + token +'/projects.json']
+    os.system("python manage.py loaddata users/" + token + "/projects.json")
     # print("Projects sync started")
-    clap2 = subprocess.Popen(command3)
-    while clap2.poll() is None:
-        time.sleep(2.5)
+    #clap2 = subprocess.Popen(command3)
+    #while clap2.poll() is None:
+    time.sleep(5)
     # print("projects sync done")
     command4 = ['python','manage.py','loaddata','users/' + token +'/tasks.json']
+    os.system("python manage.py loaddata users/" + token + "/tasks.json")
     # print("Task sync started")
-    clap3 = subprocess.Popen(command4)
-    while clap3.poll() is None:
-        time.sleep(0.5)
+    #clap3 = subprocess.Popen(command4)
+    #while clap3.poll() is None:
 
 
     # print('we did it reddit')
 
 
-
+@login_required(login_url = 'login')
 def resync(request):
     user = request.user
     # file = open('kek.txt','w')
     resyncing(user.userprofile.token,user.userprofile)
     i_am_check(user.userprofile.token)
     syncTodoist(user.userprofile.token)
-    return redirect('/projektai/kek')
+    return redirect('/projektai/')
 
 def decode(strC):
     newStr = str(unicodedata2.normalize('NFKD', strC.encode('ascii','ignore')))[2:-1]
@@ -322,6 +341,7 @@ def datefix(dt):
 
 
 # Create your views here.
+@login_required(login_url = 'login')
 def profile(request):
     user = request.user
     if user.userprofile.token is None:
@@ -330,4 +350,5 @@ def profile(request):
         # syncTodoist(user.userprofile.token)
     # print("Tasks sync is Done")
         args ={'user':request.user}
-        return render(request,'projektai/index.html',args)
+        return render(request,'test.html',args)
+        #return IndexView.as_view(request)
