@@ -88,10 +88,10 @@ def resyncing(token,profilis):
             # file.write(" newkek ")
             # file.write(str(task.task_uid.id))
             # file.write(" newkek ")
-            if task.task_parent_id is None:
-                pass
-            else:
-                parent = task.task_parent_id.task_id
+            # if task.task_parent_id is None:
+            #     pass
+            # else:
+            #     parent = task.task_parent_id.task_id
                 # file.write(str(parent))
                 # print(parent)
             # file.write(' newkek ')
@@ -108,7 +108,8 @@ def resyncing(token,profilis):
                                     task_Content=task.task_Content,
                                    task_id = task.task_id,
                                    task_project_id=task.task_project_id.Project_ID,
-                                   task_parent_id=parent,
+                                   # task_parent_id=parent,
+                                   item_order=task.item_order,
                                    task_priority=task.task_priority,
                                    task_indent=task.task_indent,
                                    task_date_added=task.task_date_added,
@@ -186,7 +187,8 @@ def syncTodoist(token,profilis):
                     'task_token':profilis,
                     'task_Content': api.state['items'][j]['content'],
                     'task_project_id': api.state['items'][j]['project_id'],
-                    'task_parent_id': api.state['items'][j]['parent_id'],
+                    # 'task_parent_id': api.state['items'][j]['parent_id'],
+                    'item_order':api.state['items'][j]['item_order'],
                     'task_priority': api.state['items'][j]['priority'],
                     'task_indent': api.state['items'][j]['indent'],
                     'task_date_added': datefix(api.state['items'][j]['date_added']),
@@ -219,12 +221,13 @@ def syncTodoist(token,profilis):
                                 )
 
 
-    monkaT.sort(key=lambda x:(x['task_indent']))
+    monkaT.sort(key=lambda x:(x['item_order']))
     for item in monkaT:
-        if item['task_parent_id'] is not None:
-            task_parentas = Task.objects.get(task_id=item['task_parent_id'])
-        else:
-            task_parentas= None
+
+        # if item['task_parent_id'] is not None:
+        #     task_parentas = Task.objects.get(task_id=item['task_parent_id'])
+        # else:
+        #     task_parentas= None
         if item['task_responsible_uid'] is not None:
             responsible = Collaborator.object.get(id=item['task_responsible_uid'])
         else:
@@ -233,7 +236,8 @@ def syncTodoist(token,profilis):
                             task_token=item['task_token'],
                             task_Content=item['task_Content'],
                             task_project_id=Projektas.objects.get(Project_ID=item['task_project_id']),
-                            task_parent_id=task_parentas,
+                            # task_parent_id=task_parentas,
+                            item_order=item['item_order'],
                             task_priority=item['task_priority'],
                             task_indent=item['task_indent'],
                             task_date_added=item['task_date_added'],
