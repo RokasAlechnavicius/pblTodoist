@@ -10,7 +10,7 @@ class SyncedStuff(models.Model):
     sync_time = models.DateTimeField(default=datetime.datetime.now(tz=timezone.utc))
 
     def __str__(self):
-        return str(self.sync_time) + "sync for user " + str(self.token)
+        return str(self.sync_time) + " sync for user " + str(self.token)
 
 class Projektas(models.Model):
     Project_token = models.ForeignKey(UserProfile,to_field='token',on_delete=models.CASCADE,null=True)
@@ -19,6 +19,7 @@ class Projektas(models.Model):
     Parent_id = models.ForeignKey('self',to_field='Project_ID',null=True,blank=True,on_delete=models.CASCADE)
     Color = models.IntegerField(null=True,blank=True)
     Indent = models.IntegerField(null=True,blank=True)
+    item_order = models.IntegerField(blank=True,null=True)
     is_deleted = models.IntegerField(null=True,blank=True)
     is_archived = models.IntegerField(null=True,blank=True)
     def __str__(self):
@@ -52,6 +53,7 @@ class Old_Projektas(models.Model):
     Parent_id = models.BigIntegerField(null=True,blank=True)
     Color = models.IntegerField(null=True,blank=True)
     Indent = models.IntegerField(null=True,blank=True)
+    item_order = models.IntegerField(blank=True,null=True)
     is_deleted = models.IntegerField(null=True,blank=True)
     is_archived = models.IntegerField(null=True,blank=True)
     when_deleted =models.DateTimeField(default=datetime.datetime.now(tz=timezone.utc))

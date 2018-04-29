@@ -17,10 +17,10 @@ def datefix(dt):
         kek = kek.__add__('T')
         kek2 = dt[11:]
         kek2 = kek2.__add__('Z')
-        print(kek)
-        print(kek2)
+        # print(kek)
+        # print(kek2)
         kek = kek.__add__(kek2)
-        print(kek)
+        # print(kek)
         return kek
 
 def make_dir(input_stringP):
@@ -48,6 +48,7 @@ data = []
 dataT = []
 for item in api.state['projects']:
     pid = api.state['projects'][i]['id']
+    print(api.state['projects'][i]['item_order'])
     data.append({
         'model': 'projektai.projektas',
         'pk': api.state['projects'][i]['id'],

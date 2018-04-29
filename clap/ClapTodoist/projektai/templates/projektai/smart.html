@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block content %}
+
+  <table>
+    <tr>
+      <th>Project name</th>
+      <th>Overdue tasks</th>
+      <th>Tasks for today</th>
+      <th>Tasks for this week</th>
+      <th>tasks for this month</th>
+      <th>tasks overall</th>
+      <th>complete tasks</th>
+    </tr>
+    {% for item in data_json%}
+      <tr>
+        <td>{{item.Project_name}}</td>
+        <td>{{item.overdue}}</td>
+        <td>{{item.tasks_today}}</td>
+        <td>{{item.tasks_this_week}}</td>
+        <td>{{item.tasks_this_month}}</td>
+        <td>{{item.tasks_overall}}</td>
+      </tr>
+    {% endfor %}
+  </table>
+
+
+{% endblock %}

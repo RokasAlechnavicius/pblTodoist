@@ -30,9 +30,9 @@ def make_dir(input_stringP):
     try:
         os.makedirs(dirpath)
     except FileExistsError:
-        print('Directory {} already exists'.format(dirpath))
+        pass
     else:
-        print('Directory {} created'.format(dirpath))
+        pass
 
 @login_required(login_url = 'login')
 def edit_profile(request):
@@ -64,6 +64,7 @@ def resyncing(token,profilis):
                                             Parent_id=None,
                                             Color=project.Color,
                                             Indent = project.Indent,
+                                            item_order=project.item_order,
                                             is_deleted=project.is_deleted,
                                             is_archived=project.is_archived,
                                             when_deleted=time)
@@ -142,66 +143,9 @@ def i_am_check(token):
 #     i_am_check(user.userprofile.token)
 #     return render(request,'accounts/checked.html')
 
-def create_old_models(token,user):
-    # laikas = datetime.datetime.now()
-    # print(user)
-    a=0
-    kappaset = Projektas.objects.filter(Project_token=user.userprofile.token)
-    print(kappaset)
-    for project in kappaset:
-        print(project.Project_token)
-        # print("kek")
-        # print(project.Project_name)
-        # objektas = Old_Projektas.objects.create(Project_token=project.Project_token,
-        #                         Project_name=project.Project_name,
-        #                         Project_ID=project.Project_ID,
-        #                         Parent_id=project.Parent_id,
-        #                         Color=project.Color,
-        #                         Indent = project.Indent,
-        #                         is_deleted=project.is_deleted,
-        #                         is_archived=project.is_archived
-        #                         )
-        # print(objektas)
-        # objektas.save()
-        # a=a+1
-        pass
-
-    for project in Projektas.objects.filter(Project_token=token):
-        for task in Task.objects.filter(task_project_id=project.Project_ID):
-            # taskas = Old_Task(task_Content=task.task_Content,
-            #                    task_id = task.task_id,
-            #                    task_project_id=task.task_project_id,
-            #                    task_parent_id=task.task_parent_id,
-            #                    task_priority=task.task_priority,
-            #                    task_indent=task.task_indent,
-            #                    task_date_added=task.task_date_added,
-            #                    task_due_date_utc = task.task_due_date_utc,
-            #                    task_uid = task.task_uid,
-            #                    task_responsible_uid=task.task_responsible_uid,
-            #                    checked = task.checked,
-            #                    in_history = task.in_history,
-            #                    is_deleted = task.is_deleted
-            #                    )
-            # taskas.save()
-            pass
-    # print('Old stuff created ezpz')
-    syncas = SyncedStuff(token=user.userprofile
-                        )
-    syncas.save()
-    return
-
-def syncTodoist(token):
-    # Project_token = models.ForeignKey(UserProfile,to_field='token',on_delete=models.PROTECT,null=True)
-    # Project_name = models.CharField(max_length=100)
-    # Project_ID = models.IntegerField(null=True,blank=True)
-    # Parent_id = models.ForeignKey(Projektas,to_field='Project_ID',null=True,blank=True,on_delete=models.CASCADE)
-    # Color = models.IntegerField(null=True,blank=True)
-    # Indent = models.IntegerField(null=True,blank=True)
-    # is_deleted = models.IntegerField(null=True,blank=True)
-    # is_archived = models.IntegerField(null=True,blank=True)
-    # when_deleted =models.DateTimeField(default=datetime.datetime.now())
-    make_dir(token)
-    os.chdir(token)
+def syncTodoist(token,profilis):
+    # make_dir(token)
+    # os.chdir(token)
     api = TodoistAPI(token)
     for project in Projektas.objects.filter(Project_token=token):
          for task in Task.objects.filter(task_project_id=project.Project_ID):
@@ -218,88 +162,101 @@ def syncTodoist(token):
         i = i + 1
 
 
-    # print(api)
-    i = 0
+    i=0
     j = 0
-    data = {}
-    dataT = {}
-    data = []
-    dataT = []
-    # print(api.state['projects'])
+    monkaS = []
+    monkaT=[]
     for item in api.state['projects']:
         pid = api.state['projects'][i]['id']
-        data.append({
-            'model': 'projektai.projektas',
-            'pk': api.state['projects'][i]['id'],
-            'fields': {
-                'Project_token':token,
-                'Project_name': api.state['projects'][i]['name'],
-                'Parent_id': api.state['projects'][i]['parent_id'],
-                'Color': api.state['projects'][i]['color'],
-                'Indent': api.state['projects'][i]['indent'],
-                'is_deleted': api.state['projects'][i]['is_deleted'],
-                'is_archived': api.state['projects'][i]['is_archived'],
-            }
+        monkaS.append({
+            'Project_ID': api.state['projects'][i]['id'],
+            'Project_token':profilis,
+            'Project_name': api.state['projects'][i]['name'],
+            'Parent_id': api.state['projects'][i]['parent_id'],
+            'Color': api.state['projects'][i]['color'],
+            'Indent': api.state['projects'][i]['indent'],
+            'item_order':api.state['projects'][i]['item_order'],
+            'is_deleted': api.state['projects'][i]['is_deleted'],
+            'is_archived': api.state['projects'][i]['is_archived'],
         })
-
         for task in api.state['items']:
             if api.state['projects'][i]['id'] == api.state['items'][j]['project_id']:
-                dataT.append({
-                    'model': 'projektai.task',
-                    'pk': api.state['items'][j]['id'],
-                    'fields': {
-                        'task_token':token,
-                        'task_Content': api.state['items'][j]['content'],
-                        'task_project_id': api.state['items'][j]['project_id'],
-                        'task_parent_id': api.state['items'][j]['parent_id'],
-                        'task_priority': api.state['items'][j]['priority'],
-                        'task_indent': api.state['items'][j]['indent'],
-                        'task_date_added': datefix(api.state['items'][j]['date_added']),
-                        'task_due_date_utc': datefix(api.state['items'][j]['due_date_utc']),
-                        'task_uid': api.state['items'][j]['user_id'],
-                        'task_responsible_uid': api.state['items'][j]['responsible_uid'],
-                        'checked': api.state['items'][j]['checked'],
-                        'in_history': api.state['items'][j]['in_history'],
-                        'is_deleted': api.state['items'][j]['is_deleted'],
-                    }
+                monkaT.append({
+                    'Task_id': api.state['items'][j]['id'],
+                    'task_token':profilis,
+                    'task_Content': api.state['items'][j]['content'],
+                    'task_project_id': api.state['items'][j]['project_id'],
+                    'task_parent_id': api.state['items'][j]['parent_id'],
+                    'task_priority': api.state['items'][j]['priority'],
+                    'task_indent': api.state['items'][j]['indent'],
+                    'task_date_added': datefix(api.state['items'][j]['date_added']),
+                    'task_due_date_utc': datefix(api.state['items'][j]['due_date_utc']),
+                    'task_uid': api.state['items'][j]['user_id'],
+                    'task_responsible_uid': api.state['items'][j]['responsible_uid'],
+                    'checked': api.state['items'][j]['checked'],
+                    'in_history': api.state['items'][j]['in_history'],
+                    'is_deleted': api.state['items'][j]['is_deleted'],
                 })
+            j=j+1
+        j=0
+        i=i+1
 
-                with open('tasks.json', 'w') as fp:
-                    json.dump(dataT, fp)
+    monkaS.sort(key=lambda x:x['item_order'])
+    for item in monkaS:
+        if item['Parent_id'] is not None:
+            parentas = Projektas.objects.get(Project_ID=item['Parent_id'])
+        else:
+            parentas = None
+        Projektas.objects.create(Project_ID=item['Project_ID'],
+                                Project_token=item['Project_token'],
+                                Project_name=item['Project_name'],
+                                Parent_id = parentas,
+                                Color = item['Color'],
+                                Indent = item['Indent'],
+                                item_order=item['item_order'],
+                                is_deleted = item['is_deleted'],
+                                is_archived = item['is_archived']
+                                )
 
-            j = j+1
 
-        with open('projects.json', 'w') as fp:
-            json.dump(data, fp)
-        j = 0
-        i = i + 1
-    i = 0
-    dataC = []
-    for item in api.state['collaborators']:
-        dataC.append({
-            "model": "accounts.collaborator",
-            "pk": api.state['collaborators'][i]['id'],
-            "fields": {
-                "email": api.state['collaborators'][i]['email'],
-                "full_name": str(unicodedata2.normalize('NFKD', (api.state['collaborators'][i]['full_name'])).encode('ascii','ignore'))[2:-1]
-            }})
-        i = i + 1
+    monkaT.sort(key=lambda x:(x['task_indent']))
+    for item in monkaT:
+        if item['task_parent_id'] is not None:
+            task_parentas = Task.objects.get(task_id=item['task_parent_id'])
+        else:
+            task_parentas= None
+        if item['task_responsible_uid'] is not None:
+            responsible = Collaborator.object.get(id=item['task_responsible_uid'])
+        else:
+            responsible=None
+        Task.objects.create(task_id=item['Task_id'],
+                            task_token=item['task_token'],
+                            task_Content=item['task_Content'],
+                            task_project_id=Projektas.objects.get(Project_ID=item['task_project_id']),
+                            task_parent_id=task_parentas,
+                            task_priority=item['task_priority'],
+                            task_indent=item['task_indent'],
+                            task_date_added=item['task_date_added'],
+                            task_due_date_utc=item['task_due_date_utc'],
+                            task_uid=Collaborator.objects.get(id=item['task_uid']),
+                            task_responsible_uid=responsible,
+                            checked = item['checked'],
+                            in_history=item['in_history'],
+                            is_deleted=item['is_deleted']
+                            )
 
-        with open('collaborators.json', 'w') as fp:
-            json.dump(dataC, fp)
+
+
     # command = ['cd']
     # subprocess.Popen(command)
-    os.chdir('..')
-    os.chdir('..')
-    command3 = ['python','manage.py','loaddata','users/' + token +'/projects.json']
-    os.system("python manage.py loaddata users/" + token + "/projects.json")
+    # os.system("python manage.py loaddata users/" + token + "/projects.json")
     # print("Projects sync started")
     #clap2 = subprocess.Popen(command3)
     #while clap2.poll() is None:
-    time.sleep(5)
+    # time.sleep(5)
     # print("projects sync done")
-    command4 = ['python','manage.py','loaddata','users/' + token +'/tasks.json']
-    os.system("python manage.py loaddata users/" + token + "/tasks.json")
+    # command4 = ['python','manage.py','loaddata','users/' + token +'/tasks.json']
+    # os.system("python manage.py loaddata users/" + token + "/tasks.json")
     # print("Task sync started")
     #clap3 = subprocess.Popen(command4)
     #while clap3.poll() is None:
@@ -314,7 +271,7 @@ def resync(request):
     # file = open('kek.txt','w')
     resyncing(user.userprofile.token,user.userprofile)
     i_am_check(user.userprofile.token)
-    syncTodoist(user.userprofile.token)
+    syncTodoist(user.userprofile.token,user.userprofile)
     return redirect('/projektai/')
 
 def decode(strC):
