@@ -155,6 +155,7 @@ def syncTodoist(token,profilis):
 
     api.sync()
     i = 0
+
     Collaborator.objects.get_or_create(id = api.state['user']['id'])
     for item in api.state['collaborators']:
         Collaborator.objects.get_or_create(id=api.state['collaborators'][i]['id'],
