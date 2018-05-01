@@ -463,27 +463,118 @@ class IndexView(LoginRequiredMixin, ListView):
         else:
             context['deadline'] = 0
         labels = []
+        valuesComp = []
+        valuesUcomp = []
+
+        stuff = SyncedStuff.objects.filter(token=self.request.user.userprofile).order_by('-sync_time')
         values = []
-        count = 0
+        for item in stuff:
+            ucompTaskCount = Old_Task.objects.filter(Task_token=self.request.user.userprofile.token,
+                                                   when_deleted=item.sync_time, checked=0).count()
 
-        for project in Projektas.objects.filter(Project_token=self.request.user.userprofile.token):
-            # labels.append(project.Project_name)
-            for task in Task.objects.filter(task_project_id=project.Project_ID):
-                # if project.Project_ID == task.task_project_id:
-                count = count + 1
+            compTaskCount = Old_Task.objects.filter(Task_token=self.request.user.userprofile.token,
+                                                   when_deleted=item.sync_time, checked=1).count()
 
-            if count != 0:
-                values.append(count)
-                name = project.Project_name
-                # print(name)
-                labels.append(name)
-                # print(project.Project_name)
-            # values.append(count)
-            count = 0
+            date = item.sync_time
+            date = date.strftime('%Y-%m-%d/%H:%M:%S')
+            labels.append(date)
 
+            valuesUcomp.append(ucompTaskCount)
+            valuesComp.append(compTaskCount)
 
         context['labels'] = labels
-        context['values'] = values
+        context['valuesComp'] = valuesComp
+        context['valuesUcomp'] = valuesUcomp
+
+        labelsdiff = []
+        valuesdiff = []
+        addedTasks = []
+        deletedTasks = []
+        completedTasks = []
+        for item in stuff:
+            oldTaskCount = Old_Task.objects.filter(Task_token=self.request.user.userprofile.token,
+                                            when_deleted=item.sync_time).count()
+            # values.append(oldTaskCount)
+            # labels.append(str(item.sync_time))
+
+        diff = SyncedStuff.objects.filter(token=self.request.user.userprofile).order_by('sync_time')
+        syncs = []
+        for item in diff:
+            syncs.append(item.sync_time)
+            # print(item.sync_time)
+
+        difference = []
+        count = 0
+        i = 0
+        for item in diff:
+            addedTaskDiffList = []
+            deletedTaskDiffList = []
+            completedTaskDiffList = []
+            tasksFirst = Old_Task.objects.filter(Task_token=self.request.user.userprofile.token,
+                                            when_deleted=syncs[i]).order_by('task_id')
+            tasksSecond = Old_Task.objects.filter(Task_token=self.request.user.userprofile.token,
+                                            when_deleted=syncs[i+1]).order_by('task_id')
+
+            for taskitem in tasksSecond:
+                addedTaskDiffList.append(taskitem.task_Content)
+
+            for taskitem in tasksFirst:
+                deletedTaskDiffList.append(taskitem.task_Content)
+
+            # j = 0
+            for task in tasksSecond:
+                for taskB4 in tasksFirst:
+                    if task.task_id == taskB4.task_id:
+                        addedTaskDiffList.remove(task.task_Content)
+
+            for task in tasksSecond:
+                for taskB4 in tasksFirst:
+                    if task.task_id == taskB4.task_id:
+                        deletedTaskDiffList.remove(task.task_Content)
+
+            for task in tasksSecond:
+                for taskB4 in tasksFirst:
+                    if task.task_id == taskB4.task_id and task.checked == 1 and taskB4.checked == 0:
+                        completedTaskDiffList.append(task.task_Content)
+
+            if i < len(diff) - 2:
+                i += 1
+
+
+            # print(date, 'added', addedTaskDiffList, '---------- Count --  ',  len(addedTaskDiffList))
+            # print(date, 'deleted', deletedTaskDiffList, '---------- Count --  ',  len(deletedTaskDiffList))
+            # print(date, 'completed', completedTaskDiffList, '---------- Count --  ',  len(completedTaskDiffList))
+            # print('Count of all changes - ', len(addedTaskDiffList)+len(deletedTaskDiffList)+len(completedTaskDiffList))
+            # print()
+            if len(addedTaskDiffList) > 0 or len(deletedTaskDiffList) > 0 or len(completedTaskDiffList) > 0:
+                if len(addedTaskDiffList) > 0:
+                    addedTasks.append(len(addedTaskDiffList))
+                else:
+                    addedTasks.append(0)
+
+                if len(deletedTaskDiffList) > 0:
+                    deletedTasks.append(len(deletedTaskDiffList))
+                else:
+                    deletedTasks.append(0)
+
+                if len(completedTaskDiffList) > 0:
+                    completedTasks.append(len(completedTaskDiffList))
+                else:
+                    completedTasks.append(0)
+
+            if len(addedTaskDiffList) + len(deletedTaskDiffList) + len(completedTaskDiffList) > 0:
+                date = syncs[i]
+                date = date.strftime('%Y-%m-%d/%H:%M:%S')
+                labelsdiff.append(date)
+
+        context['addedTasks'] = addedTasks
+        context['deletedTasks'] = deletedTasks
+        context['completedTasks'] = completedTasks
+        context['labelsdiff'] = labelsdiff
+        context['valuesdiff'] = valuesdiff
+
+
+
         return context
 
 #def index(request):
