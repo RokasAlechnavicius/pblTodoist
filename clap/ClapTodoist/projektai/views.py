@@ -3,12 +3,196 @@ from django.views.generic.list import ListView
 from django.views.generic import TemplateView
 from .fusioncharts import FusionCharts
 # Create your views here.
-from projektai.models import Projektas,Task,SyncedStuff
+from projektai.models import Projektas,Task,SyncedStuff,Old_Task,Old_Projektas
 import json
 from django.http import JsonResponse,HttpResponse
 import datetime
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.decorators import login_required
+
+def project_calculations(token,profile,projectinstance):
+    data = []
+    today= datetime.datetime.now().date()
+    tommorow = today + datetime.timedelta(1)
+    today_start = datetime.datetime.combine(today, datetime.time())
+    today_end = datetime.datetime.combine(tommorow, datetime.time())
+    this_week_start = today - datetime.timedelta(days=today.weekday())
+    this_week_end = this_week_start + datetime.timedelta(days=6)
+    this_month = datetime.datetime.now().month
+
+    for project in Projektas.objects.filter(Project_token=token,Parent_id=None,Project_ID=projectinstance.Project_ID).order_by('item_order'):
+        overdue = Task.objects.filter(task_project_id=project.Project_ID,task_token=token,task_due_date_utc__isnull=False,task_due_date_utc__lte=datetime.datetime.now(),checked=False).count()
+        tasks_today = Task.objects.filter(task_project_id=project.Project_ID,task_token=token,task_due_date_utc__lte=today_end,task_due_date_utc__gte=today_start,checked=False).count()
+        tasks_this_week = Task.objects.filter(task_project_id=project.Project_ID,task_token=token,task_due_date_utc__lte=this_week_end,task_due_date_utc__gte=this_week_start,checked=False).count()
+        tasks_this_month = Task.objects.filter(task_project_id=project.Project_ID,task_token=token,task_due_date_utc__month=this_month,checked=False).count()
+        tasks_overall =  Task.objects.filter(task_project_id=project.Project_ID,task_token=token).count()
+        own_tasks = Task.objects.filter(task_project_id=project.Project_ID,task_token=token).count()
+        for subproject in Projektas.objects.filter(Project_token=token,Parent_id=project.Project_ID).order_by('item_order'):
+            sub_overdue = Task.objects.filter(task_project_id=subproject.Project_ID,task_token=token,task_due_date_utc__isnull=False,task_due_date_utc__lte=datetime.datetime.now(),checked=False).count()
+            overdue=overdue+sub_overdue
+
+            subtasks_today = Task.objects.filter(task_project_id=subproject.Project_ID,task_token=token,task_due_date_utc__lte=today_end,task_due_date_utc__gte=today_start,checked=False).count()
+            tasks_today=tasks_today+subtasks_today
+
+            subtasks_this_week = Task.objects.filter(task_project_id=subproject.Project_ID,task_token=token,task_due_date_utc__lte=this_week_end,task_due_date_utc__gte=this_week_start,checked=False).count()
+            tasks_this_week=tasks_this_week+subtasks_this_week
+
+            subtasks_this_month = Task.objects.filter(task_project_id=subproject.Project_ID,task_token=token,task_due_date_utc__month=this_month,checked=False).count()
+            tasks_this_month=tasks_this_month + subtasks_this_month
+
+            subown_tasks = Task.objects.filter(task_project_id=subproject.Project_ID,task_token=token).count()
+
+            subtasks_overall =  Task.objects.filter(task_project_id=subproject.Project_ID,task_token=token).count()
+            tasks_overall = tasks_overall + subtasks_overall
+            for subsubproject in Projektas.objects.filter(Project_token=token,Parent_id=subproject.Project_ID).order_by('item_order'):
+                sub_sub_overdue = Task.objects.filter(task_project_id=subsubproject.Project_ID,task_token=token,task_due_date_utc__isnull=False,task_due_date_utc__lte=datetime.datetime.now(),checked=False).count()
+                overdue=overdue+sub_sub_overdue
+                sub_overdue=sub_overdue+sub_sub_overdue
+
+                subsubtasks_today = Task.objects.filter(task_project_id=subsubproject.Project_ID,task_token=token,task_due_date_utc__lte=today_end,task_due_date_utc__gte=today_start,checked=False).count()
+                tasks_today=tasks_today+subsubtasks_today
+                subtasks_today=subtasks_today+subsubtasks_today
+
+                subsubtasks_this_week = Task.objects.filter(task_project_id=subsubproject.Project_ID,task_token=token,task_due_date_utc__lte=this_week_end,task_due_date_utc__gte=this_week_start,checked=False).count()
+                tasks_this_week=tasks_this_week+subsubtasks_this_week
+                subtasks_this_week=subtasks_this_week+subsubtasks_this_week
+
+                subsubtasks_this_month = Task.objects.filter(task_project_id=subsubproject.Project_ID,task_token=token,task_due_date_utc__month=this_month,checked=False).count()
+                tasks_this_month=tasks_this_month + subsubtasks_this_month
+                subtasks_this_month = subtasks_this_month + subsubtasks_this_month
+
+                subsubtasks_overall =  Task.objects.filter(task_project_id=subsubproject.Project_ID,task_token=token).count()
+                tasks_overall = tasks_overall + subsubtasks_overall
+                subtasks_overall = subtasks_overall + subsubtasks_overall
+
+                subsubown_tasks = Task.objects.filter(task_project_id=subsubproject.Project_ID,task_token=token).count()
+                for subsubsubproject in Projektas.objects.filter(Project_token=token,Parent_id=subsubproject.Project_ID).order_by('item_order'):
+                    sub_sub_sub_overdue = Task.objects.filter(task_project_id=subsubsubproject.Project_ID,task_token=token,task_due_date_utc__isnull=False,task_due_date_utc__lte=datetime.datetime.now(),checked=False).count()
+                    overdue=overdue+sub_sub_sub_overdue
+                    sub_overdue=sub_overdue+sub_sub_sub_overdue
+                    sub_sub_overdue=sub_sub_overdue+sub_sub_sub_overdue
+
+                    subsubsubtasks_today = Task.objects.filter(task_project_id=subsubsubproject.Project_ID,task_token=token,task_due_date_utc__lte=today_end,task_due_date_utc__gte=today_start,checked=False).count()
+                    tasks_today=tasks_today+subsubsubtasks_today
+                    subtasks_today = subtasks_today + subsubsubtasks_today
+                    subsubtasks_today = subsubtasks_today + subsubsubtasks_today
+
+                    subsubsubtasks_this_week = Task.objects.filter(task_project_id=subsubsubproject.Project_ID,task_token=token,task_due_date_utc__lte=this_week_end,task_due_date_utc__gte=this_week_start,checked=False).count()
+                    tasks_this_week=tasks_this_week+subsubsubtasks_this_week
+                    subtasks_this_week=subtasks_this_week+subsubsubtasks_this_week
+                    subsubtasks_this_week=subsubtasks_this_week + subsubsubtasks_this_week
+
+                    subsubsubtasks_this_month = Task.objects.filter(task_project_id=subsubsubproject.Project_ID,task_token=token,task_due_date_utc__month=this_month,checked=False).count()
+                    tasks_this_month=tasks_this_month + subsubsubtasks_this_month
+                    subtasks_this_month = subtasks_this_month + subsubsubtasks_this_month
+                    subsubtasks_this_month = subsubtasks_this_month + subsubsubtasks_this_month
+
+                    subsubsubtasks_overall =  Task.objects.filter(task_project_id=subsubsubproject.Project_ID,task_token=token).count()
+                    tasks_overall = tasks_overall + subsubsubtasks_overall
+                    subtasks_overall = subtasks_overall + subsubsubtasks_overall
+                    subsubtasks_overall = subsubtasks_overall + subsubsubtasks_overall
+
+                    subsubsubown_tasks = Task.objects.filter(task_project_id=subsubsubproject.Project_ID,task_token=token).count()
+
+                    data.append({
+                    "Project_name":"subsubsubproject " + subsubsubproject.Project_name,
+                    'Project_ID':subsubsubproject.Project_ID,
+                    "overdue":sub_sub_sub_overdue,
+                    'item_order':subsubsubproject.item_order,
+                    'tasks_today':subsubsubtasks_today,
+                    'tasks_this_week':subsubsubtasks_this_week,
+                    'tasks_this_month':subsubsubtasks_this_month,
+                    "tasks_overall":subsubsubtasks_overall,
+                    'project_indent':subsubsubproject.Indent,
+                    'project_type':4,
+                    'own_tasks':subsubsubown_tasks,
+                    })
+
+                data.append({
+                "Project_name":"subsubproject " + subsubproject.Project_name,
+                'Project_ID':subsubproject.Project_ID,
+                "overdue":sub_sub_overdue,
+                'item_order':subsubproject.item_order,
+                'tasks_today':subsubtasks_today,
+                'tasks_this_week':subsubtasks_this_week,
+                'tasks_this_month':subsubtasks_this_month,
+                "tasks_overall":subsubtasks_overall,
+                'project_indent':subsubproject.Indent,
+                'project_type':3,
+                'own_tasks':subsubown_tasks,
+                })
+
+            data.append({
+            "Project_name": "subproject " + subproject.Project_name,
+            'Project_ID':subproject.Project_ID,
+            "overdue":sub_overdue,
+            'item_order':subproject.item_order,
+            'tasks_today':subtasks_today,
+            'tasks_this_week':subtasks_this_week,
+            'tasks_this_month':subtasks_this_month,
+            "tasks_overall":subtasks_overall,
+            'project_indent':subproject.Indent,
+            'project_type':2,
+            'own_tasks':subown_tasks,
+            })
+
+        data.append({
+        "Project_name":project.Project_name,
+        'Project_ID':project.Project_ID,
+        "overdue":overdue,
+        'item_order':project.item_order,
+        'tasks_today':tasks_today,
+        'tasks_this_week':tasks_this_week,
+        'tasks_this_month':tasks_this_month,
+        "tasks_overall":tasks_overall,
+        'project_indent':project.Indent,
+        'project_type':1,
+        'own_tasks':own_tasks,
+        })
+    data.sort(key=lambda x:x['item_order'])
+
+    return data
+
+
+def task_calculations(token,profile):
+    tasks = Task.objects.filter(task_token = token)
+    data = []
+    today= datetime.datetime.now().date()
+    tommorow = today + datetime.timedelta(1)
+    today_start = datetime.datetime.combine(today, datetime.time())
+    today_end = datetime.datetime.combine(tommorow, datetime.time())
+    this_week_start = today - datetime.timedelta(days=today.weekday())
+    this_week_end = this_week_start + datetime.timedelta(days=6)
+    this_month = datetime.datetime.now().month
+    for task in tasks:
+        overdue=0
+        task_today = 0
+        task_this_week = 0
+        task_this_month = 0
+        overdue_query = Task.objects.filter(task_id=task.task_id,task_due_date_utc__isnull=False,task_due_date_utc__lte=datetime.datetime.now(),checked=0).count()
+        if overdue_query is not 0:
+            overdue = 1
+        if Task.objects.filter(task_id=task.task_id,task_due_date_utc__isnull=False,task_due_date_utc__lte=today_end,task_due_date_utc__gte=today_start,checked=0).count() is not 0:
+            task_today = 1
+        if Task.objects.filter(task_id=task.task_id,task_due_date_utc__lte=this_week_end,task_due_date_utc__gte=this_week_start,checked=0).count() is not 0:
+            task_this_week = 1
+        if Task.objects.filter(task_id=task.task_id,task_due_date_utc__month=this_month,checked=0).count() is not 0:
+            task_this_month=1
+
+
+
+        data.append({
+        'task_Content':task.task_Content,
+        'task_project_id':task.task_project_id,
+        'overdue':overdue,
+        'task_today':task_today,
+        'task_this_week':task_this_week,
+        'task_this_month':task_this_month,
+        'checked':task.checked,
+        'item_order':task.item_order
+        })
+    data.sort(key=lambda x:x['item_order'])
+    return data
 
 
 def big_calculations(token,profile):
@@ -147,7 +331,20 @@ def big_calculations(token,profile):
 
 def ProjectDashboard(request,pk=None):
     instance = get_object_or_404(Projektas,Project_ID=pk)
-    args={'clap':instance}
+    project_data = project_calculations(request.user.userprofile.token,request.user.userprofile,instance)
+    # print(project_data)
+    tasks_data = task_calculations(request.user.userprofile.token,request.user.userprofile)
+    # tasks_data.sort(key=lambda x:x['item_order'])
+    checked_count = 0
+    for task in tasks_data:
+        if task['checked'] is 1:
+            checked_count = checked_count + 1
+
+    project_count = len(project_data)-1
+    args={'clap':instance,'projects':project_data,'tasks':tasks_data,'project_count':project_count,'checked_count':checked_count,
+    }
+    # print(project_data[0]['tasks_overall'])
+
     return render(request,'projektai/projectpage.html',args)
 
 
@@ -200,6 +397,13 @@ class IndexView(LoginRequiredMixin, ListView):
         big_data = big_calculations(self.request.user.userprofile.token,self.request.user.userprofile)
         context = super(IndexView,self).get_context_data(**kwargs)
         stuff = SyncedStuff.objects.filter(token = self.request.user.userprofile).order_by('-sync_time')
+        skaicius = []
+        for item in stuff:
+            nania = Old_Task.objects.filter(Task_token=self.request.user.userprofile.token,when_deleted=item.sync_time).count()
+            skaicius.append({
+            'task_count':nania
+            })
+        context['crap'] = skaicius
         # context['old_sync'] = SyncedStuff.objects.filter(token = self.request.user.userprofile).order_by('-sync_time')
         context['last_synced_at'] = stuff[0].sync_time
         # synced_dates = []

@@ -17,7 +17,7 @@
                                     <div class="col-xs-7">
                                         <div class="numbers">
                                             <p>Projects</p>
-
+                                            {{project_count}}
                                         </div>
                                     </div>
                                 </div>
@@ -42,14 +42,14 @@
                                     <div class="col-xs-7">
                                         <div class="numbers">
                                             <p>Tasks</p>
-
+                                            {{projects.0.tasks_overall}}
                                         </div>
                                     </div>
                                 </div>
                                 <div class="footer">
                                     <hr />
                                     <div class="stats">
-                                        <i class="ti-calendar"></i> tasks are complete
+                                        <i class="ti-calendar"></i>{{checked_count}} tasks are complete
                                     </div>
                                 </div>
                             </div>
@@ -67,14 +67,8 @@
                                     <div class="col-xs-7">
                                         <div class="numbers">
                                             <p>Overdue Tasks</p>
-
+                                            {{projects.0.overdue}}
                                         </div>
-                                    </div>
-                                </div>
-                                <div class="footer">
-                                    <hr />
-                                    <div class="stats">
-                                        <i class="ti-timer"></i> In projects:
                                     </div>
                                 </div>
                             </div>
@@ -92,15 +86,11 @@
                                     <div class="col-xs-7">
                                         <div class="numbers">
                                             <p> Tasks due today</p>
+                                            {{projects.0.tasks_today}}
                                         </div>
                                     </div>
                                 </div>
-                                <div class="footer">
-                                    <hr />
-                                    <div class="stats">
-                                        <i class="ti-timer"></i> TODAY
-                                    </div>
-                                </div>
+
                             </div>
                         </div>
                     </div>
@@ -110,10 +100,10 @@
                     <div class="col-md-12">
                         <div class="card">
                             <div class="header">
-                                <h4 class="title">Overview of your projects</h4>
+                                <h4 class="title">Overview of project {{projects.0.Project_name}}</h4>
                             </div>
                             <div class="content">
-                              <table cellpadding='0' cellspacing="0" class="tbl-accordion">
+                              <table  id="customers">
                                 <thead>
 
                                 <tr>
@@ -126,7 +116,50 @@
                                 </tr>
                                 </thead>
                                 <tbody>
+                                  {% for project in projects %}
 
+                                  <tr>
+                                    <td>{{project.Project_name}}</td>
+                                    <td>{{project.overdue}}</td>
+                                    <td>{{project.tasks_today}}</td>
+                                    <td>{{project.tasks_this_week}}</td>
+                                    <td>{{project.tasks_this_month}}</td>
+                                    <td>{{project.tasks_overall}}</td>
+                                  </tr>
+                                  {% if project.own_tasks is not 0 %}
+                                  <tr>
+
+                                        <th>Tasks of {{project.Project_name}}</th>
+                                        <th>Overdue</th>
+                                        <th>Due today</th>
+                                        <th>Due this week</th>
+                                        <th>Due this month</th>
+                                        <th>Is complete</th>
+                                      </tr>
+                                      {% for task in tasks %}
+                                      {% if task.task_project_id.Project_ID == project.Project_ID %}
+                                      <tr>
+                                        <td>{{task.task_Content}}</td>
+                                        <td>{{task.overdue}}</td>
+                                        <td>{{task.task_today}}</td>
+                                        <td>{{task.task_this_week}}</td>
+                                        <td>{{task.task_this_month}}</td>
+                                        <td>{{task.checked}}</td>
+                                      </tr>
+                                      {% endif %}
+                                      {% endfor %}
+                                      {% if not forloop.last %}
+                                      <tr>
+                                        <th>Project name</th>
+                                        <th>Overdue tasks</th>
+                                        <th>Tasks for today</th>
+                                        <th>Tasks for this week</th>
+                                        <th>tasks for this month</th>
+                                        <th>tasks overall</th>
+                                      </tr>
+                                      {% endif %}
+                                  {% endif %}
+                                  {% endfor %}
                                 </tbody>
                               </table>
 

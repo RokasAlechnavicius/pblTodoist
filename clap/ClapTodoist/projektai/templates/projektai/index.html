@@ -150,7 +150,7 @@
                                     <td>{{item.tasks_overall}}</td>
                                   </tr>
                                   {% for task in tasks %}
-                                  {% if item.tasks_overall is not 0 %}
+                                  {% if item.own_tasks is not 0 %}
                                   {% if item.Project_ID == task.task_project_id.Project_ID %}
                                   {% endif %}
                                   {% endif %}

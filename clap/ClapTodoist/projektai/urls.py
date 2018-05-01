@@ -9,6 +9,6 @@ url(r'^kek/$',views.KekView.as_view(),name='post_listas'),
 url(r'^megakek/$',views.megakek,name = 'megakek'),
 url(r'^alphadashboard/$',views.DashboardView.as_view(),name='dashboard'),
 url(r'^table/$',views.smart,name='smar'),
-url(r'^alphadashboard/(?P<pk>\d+)/$',views.ProjectDashboard,name='ProjectDashboard')
+url(r'^(?P<pk>\d+)/$',views.ProjectDashboard,name='ProjectDashboard')
 
 ]
