@@ -1,0 +1,36 @@
+<head>
+  <!-- Plotly.js -->
+  <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+</head>
+
+<body>
+
+  <div id="myDiv"><!-- Plotly chart will be drawn inside this DIV --></div>
+  <script>
+        var trace1 = {
+      x: {{ labels|safe }},
+      y: {{ valuesComp }},
+      name: 'Completed Tasks',
+      type: 'bar',
+      marker: {
+        color: 'rgb(60,179,113)'
+      }
+    };
+
+    var trace2 = {
+      x: {{ labels|safe }},
+      y: {{ valuesUcomp }},
+      name: 'Uncompleted Tasks',
+      type: 'bar',
+      marker: {
+        color: 'rgb(255,127,80)'
+      }
+    };
+
+    var data = [trace2, trace1];
+
+    var layout = {barmode: 'stack', title: 'Completed and Uncompleted Tasks in Each Sync'};
+
+    Plotly.newPlot('myDiv', data, layout);
+  </script>
+</body>

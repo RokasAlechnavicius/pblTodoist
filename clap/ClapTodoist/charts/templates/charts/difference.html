@@ -1,0 +1,39 @@
+<head>
+<!-- Plotly.js -->
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    </head>
+    <body>
+    <!-- Plotly chart will be drawn inside this DIV -->
+    <div id="myDiv"></div>
+    <script>
+
+            var trace1 = {
+          x: {{ labels|safe }},
+          y: {{ addedTasks }},
+          name: 'Added Tasks',
+          type: 'bar'
+        };
+
+        var trace2 = {
+          x: {{ labels|safe }},
+          y: {{ deletedTasks }},
+          name: 'Deleted Tasks',
+          type: 'bar'
+        };
+
+         var trace3 = {
+          x: {{ labels|safe }},
+          y: {{ completedTasks }},
+          name: 'Completed Tasks',
+          type: 'bar'
+        };
+
+        var data = [trace1, trace2, trace3];
+
+        var layout = {barmode: 'stack', title: 'Differences between Syncs'};
+
+        Plotly.newPlot('myDiv', data, layout);
+
+    </script>
+
+    </body>
