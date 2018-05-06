@@ -24,16 +24,6 @@ class SignUp(CreateView):
     success_url = reverse_lazy("login")
     template_name = "accounts/signup.html"
 
-def make_dir(input_stringP):
-    os.chdir('users')
-    dirpath = (input_stringP)
-    try:
-        os.makedirs(dirpath)
-    except FileExistsError:
-        pass
-    else:
-        pass
-
 @login_required(login_url = 'login')
 def edit_profile(request):
     user = request.user
@@ -41,7 +31,10 @@ def edit_profile(request):
         profile_form = EditProfileInformationForm(data=request.POST,instance = request.user.userprofile)
         if profile_form.is_valid():
             profile_form.save()
-            syncTodoist(user.userprofile.token)
+            syncTodoist(user.userprofile.token,user.userprofile)
+            # resyncing(user.userprofile.token, user.userprofile)
+            # i_am_check(user.userprofile.token)
+            # syncTodoist(user.userprofile.token, user.userprofile)
             return redirect('/projektai/')
         else:
             print(profile_form.errors)
@@ -133,7 +126,7 @@ def i_am_check(token):
     a=1
     nani = SyncedStuff.objects.filter(token = token).order_by('sync_time')
     for synced in SyncedStuff.objects.filter(token = token).order_by('sync_time'):
-        if a == 1 and len(nani)>5:
+        if a == 1 and len(nani)>20:
             Old_Projektas.objects.filter(Project_token=token,when_deleted=synced.sync_time).delete()
             Old_Task.objects.filter(Task_token=token,when_deleted=synced.sync_time).delete()
             synced.delete()
@@ -155,12 +148,13 @@ def syncTodoist(token,profilis):
 
     api.sync()
     i = 0
-
-    Collaborator.objects.get_or_create(id = api.state['user']['id'])
+    Collaborator.objects.filter(id = api.state['user']['id']).update(full_name=api.state['user']['full_name'])
+    Collaborator.objects.get_or_create(id = api.state['user']['id'],full_name=api.state['user']['full_name'])
     for item in api.state['collaborators']:
-        Collaborator.objects.get_or_create(id=api.state['collaborators'][i]['id'],
-                                            email=api.state['collaborators'][i]['email'],
-                                            full_name=str(unicodedata2.normalize('NFKD', (api.state['collaborators'][i]['full_name'])).encode('ascii','ignore'))[2:-1])
+        if api.state['collaborators'][i]['id'] != api.state['user']['id']:
+            Collaborator.objects.get_or_create(id=api.state['collaborators'][i]['id'],
+                                                email=api.state['collaborators'][i]['email'],
+                                                full_name=str(unicodedata2.normalize('NFKD', (api.state['collaborators'][i]['full_name'])).encode('ascii','ignore'))[2:-1])
         i = i + 1
 
 
@@ -230,7 +224,7 @@ def syncTodoist(token,profilis):
         # else:
         #     task_parentas= None
         if item['task_responsible_uid'] is not None:
-            responsible = Collaborator.object.get(id=item['task_responsible_uid'])
+            responsible = Collaborator.objects.get(id=item['task_responsible_uid'])
         else:
             responsible=None
         Task.objects.create(task_id=item['Task_id'],
@@ -277,6 +271,9 @@ def resync(request):
     resyncing(user.userprofile.token,user.userprofile)
     i_am_check(user.userprofile.token)
     syncTodoist(user.userprofile.token,user.userprofile)
+    resyncing(user.userprofile.token, user.userprofile)
+    i_am_check(user.userprofile.token)
+    syncTodoist(user.userprofile.token, user.userprofile)
     return redirect('/projektai/')
 
 def decode(strC):

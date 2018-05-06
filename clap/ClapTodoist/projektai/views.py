@@ -4,6 +4,7 @@ from django.views.generic import TemplateView
 from .fusioncharts import FusionCharts
 # Create your views here.
 from projektai.models import Projektas,Task,SyncedStuff,Old_Task,Old_Projektas
+from accounts.models import Collaborator
 import json
 from django.http import JsonResponse,HttpResponse
 import datetime
@@ -27,6 +28,11 @@ def project_calculations(token,profile,projectinstance):
         tasks_this_month = Task.objects.filter(task_project_id=project.Project_ID,task_token=token,task_due_date_utc__month=this_month,checked=False).count()
         tasks_overall =  Task.objects.filter(task_project_id=project.Project_ID,task_token=token).count()
         own_tasks = Task.objects.filter(task_project_id=project.Project_ID,task_token=token).count()
+        own_overdue = Task.objects.filter(task_project_id=project.Project_ID,task_token=token,task_due_date_utc__isnull=False,task_due_date_utc__lte=datetime.datetime.now(),checked=False).count()
+        own_today = Task.objects.filter(task_project_id=project.Project_ID,task_token=token,task_due_date_utc__lte=today_end,task_due_date_utc__gte=today_start,checked=False).count()
+        own_this_week = Task.objects.filter(task_project_id=project.Project_ID,task_token=token,task_due_date_utc__lte=this_week_end,task_due_date_utc__gte=this_week_start,checked=False).count()
+        own_this_month = Task.objects.filter(task_project_id=project.Project_ID,task_token=token,task_due_date_utc__month=this_month,checked=False).count()
+
         for subproject in Projektas.objects.filter(Project_token=token,Parent_id=project.Project_ID).order_by('item_order'):
             sub_overdue = Task.objects.filter(task_project_id=subproject.Project_ID,task_token=token,task_due_date_utc__isnull=False,task_due_date_utc__lte=datetime.datetime.now(),checked=False).count()
             overdue=overdue+sub_overdue
@@ -41,6 +47,10 @@ def project_calculations(token,profile,projectinstance):
             tasks_this_month=tasks_this_month + subtasks_this_month
 
             subown_tasks = Task.objects.filter(task_project_id=subproject.Project_ID,task_token=token).count()
+            subown_overdue = Task.objects.filter(task_project_id=subproject.Project_ID,task_token=token,task_due_date_utc__isnull=False,task_due_date_utc__lte=datetime.datetime.now(),checked=False).count()
+            subown_today = Task.objects.filter(task_project_id=subproject.Project_ID,task_token=token,task_due_date_utc__lte=today_end,task_due_date_utc__gte=today_start,checked=False).count()
+            subown_this_week = Task.objects.filter(task_project_id=subproject.Project_ID,task_token=token,task_due_date_utc__lte=this_week_end,task_due_date_utc__gte=this_week_start,checked=False).count()
+            subown_this_month = Task.objects.filter(task_project_id=subproject.Project_ID,task_token=token,task_due_date_utc__month=this_month,checked=False).count()
 
             subtasks_overall =  Task.objects.filter(task_project_id=subproject.Project_ID,task_token=token).count()
             tasks_overall = tasks_overall + subtasks_overall
@@ -66,6 +76,11 @@ def project_calculations(token,profile,projectinstance):
                 subtasks_overall = subtasks_overall + subsubtasks_overall
 
                 subsubown_tasks = Task.objects.filter(task_project_id=subsubproject.Project_ID,task_token=token).count()
+                subsubown_overdue = Task.objects.filter(task_project_id=subsubproject.Project_ID,task_token=token,task_due_date_utc__isnull=False,task_due_date_utc__lte=datetime.datetime.now(),checked=False).count()
+                subsubown_today = Task.objects.filter(task_project_id=subsubproject.Project_ID,task_token=token,task_due_date_utc__lte=today_end,task_due_date_utc__gte=today_start,checked=False).count()
+                subsubown_this_week = Task.objects.filter(task_project_id=subsubproject.Project_ID,task_token=token,task_due_date_utc__lte=this_week_end,task_due_date_utc__gte=this_week_start,checked=False).count()
+                subsubown_this_month = Task.objects.filter(task_project_id=subsubproject.Project_ID,task_token=token,task_due_date_utc__month=this_month,checked=False).count()
+
                 for subsubsubproject in Projektas.objects.filter(Project_token=token,Parent_id=subsubproject.Project_ID).order_by('item_order'):
                     sub_sub_sub_overdue = Task.objects.filter(task_project_id=subsubsubproject.Project_ID,task_token=token,task_due_date_utc__isnull=False,task_due_date_utc__lte=datetime.datetime.now(),checked=False).count()
                     overdue=overdue+sub_sub_sub_overdue
@@ -93,9 +108,13 @@ def project_calculations(token,profile,projectinstance):
                     subsubtasks_overall = subsubtasks_overall + subsubsubtasks_overall
 
                     subsubsubown_tasks = Task.objects.filter(task_project_id=subsubsubproject.Project_ID,task_token=token).count()
+                    subsubsubown_overdue = Task.objects.filter(task_project_id=subsubsubproject.Project_ID,task_token=token,task_due_date_utc__isnull=False,task_due_date_utc__lte=datetime.datetime.now(),checked=False).count()
+                    subsubsubown_today = Task.objects.filter(task_project_id=subsubsubproject.Project_ID,task_token=token,task_due_date_utc__lte=today_end,task_due_date_utc__gte=today_start,checked=False).count()
+                    subsubsubown_this_week = Task.objects.filter(task_project_id=subsubsubproject.Project_ID,task_token=token,task_due_date_utc__lte=this_week_end,task_due_date_utc__gte=this_week_start,checked=False).count()
+                    subsubsubown_this_month = Task.objects.filter(task_project_id=subsubsubproject.Project_ID,task_token=token,task_due_date_utc__month=this_month,checked=False).count()
 
                     data.append({
-                    "Project_name":"subsubsubproject " + subsubsubproject.Project_name,
+                    "Project_name":subsubsubproject.Project_name,
                     'Project_ID':subsubsubproject.Project_ID,
                     "overdue":sub_sub_sub_overdue,
                     'item_order':subsubsubproject.item_order,
@@ -106,10 +125,15 @@ def project_calculations(token,profile,projectinstance):
                     'project_indent':subsubsubproject.Indent,
                     'project_type':4,
                     'own_tasks':subsubsubown_tasks,
+                    'style':"",
+                    'own_overdue':subsubsubown_overdue,
+                    'own_today':subsubsubtasks_today,
+                    'own_this_week':subsubsubtasks_this_week,
+                    'own_this_month':subsubsubtasks_this_month
                     })
 
                 data.append({
-                "Project_name":"subsubproject " + subsubproject.Project_name,
+                "Project_name":subsubproject.Project_name,
                 'Project_ID':subsubproject.Project_ID,
                 "overdue":sub_sub_overdue,
                 'item_order':subsubproject.item_order,
@@ -120,10 +144,15 @@ def project_calculations(token,profile,projectinstance):
                 'project_indent':subsubproject.Indent,
                 'project_type':3,
                 'own_tasks':subsubown_tasks,
+                'style':"",
+                'own_overdue':subsubown_overdue,
+                'own_today':subsubown_today,
+                'own_this_week':subsubown_this_week,
+                'own_this_month':subsubown_this_month,
                 })
 
             data.append({
-            "Project_name": "subproject " + subproject.Project_name,
+            "Project_name":subproject.Project_name,
             'Project_ID':subproject.Project_ID,
             "overdue":sub_overdue,
             'item_order':subproject.item_order,
@@ -134,6 +163,11 @@ def project_calculations(token,profile,projectinstance):
             'project_indent':subproject.Indent,
             'project_type':2,
             'own_tasks':subown_tasks,
+            'style':"",
+            'own_overdue':subown_overdue,
+            'own_today':subown_today,
+            'own_this_week':subown_this_week,
+            'own_this_month':subown_this_month,
             })
 
         data.append({
@@ -148,14 +182,18 @@ def project_calculations(token,profile,projectinstance):
         'project_indent':project.Indent,
         'project_type':1,
         'own_tasks':own_tasks,
+        'style':"",
+        'own_overdue':own_overdue,
+        'own_today':own_today,
+        'own_this_week':own_this_week,
+        'own_this_month':own_this_month
         })
     data.sort(key=lambda x:x['item_order'])
 
     return data
 
 
-def task_calculations(token,profile):
-    tasks = Task.objects.filter(task_token = token)
+def task_calculations(token,profile,query,projects_id,collaboratorID):
     data = []
     today= datetime.datetime.now().date()
     tommorow = today + datetime.timedelta(1)
@@ -164,6 +202,41 @@ def task_calculations(token,profile):
     this_week_start = today - datetime.timedelta(days=today.weekday())
     this_week_end = this_week_start + datetime.timedelta(days=6)
     this_month = datetime.datetime.now().month
+    if collaboratorID is 0:
+        if query == 'Overdue':
+            tasks = Task.objects.filter(task_token=token, task_due_date_utc__isnull=False,
+                                        task_due_date_utc__lte=datetime.datetime.now(), checked=0,
+                                        task_project_id__in=projects_id)
+        elif query == 'Today':
+            tasks = Task.objects.filter(task_token=token, task_due_date_utc__isnull=False,
+                                        task_due_date_utc__lte=today_end, task_due_date_utc__gte=today_start, checked=0,
+                                        task_project_id__in=projects_id)
+        elif query == "This week":
+            tasks = Task.objects.filter(task_token=token, task_due_date_utc__lte=this_week_end,
+                                        task_due_date_utc__gte=this_week_start, checked=0,
+                                        task_project_id__in=projects_id)
+        elif query == 'This month':
+            tasks = Task.objects.filter(task_token=token, task_due_date_utc__lte=this_week_end,
+                                        task_due_date_utc__gte=this_week_start, checked=0,
+                                        task_project_id__in=projects_id)
+        elif query == "Uncompleted":
+            tasks = Task.objects.filter(task_token=token, checked=0, task_project_id__in=projects_id)
+        else:
+            tasks = Task.objects.filter(task_token=token, task_project_id__in=projects_id)
+    else:
+        if query == 'Overdue':
+            tasks = Task.objects.filter(task_token = token,task_due_date_utc__isnull=False,task_due_date_utc__lte=datetime.datetime.now(),checked=0,task_project_id__in=projects_id,task_responsible_uid=collaboratorID)
+        elif query == 'Today':
+            tasks = Task.objects.filter(task_token = token,task_due_date_utc__isnull=False,task_due_date_utc__lte=today_end,task_due_date_utc__gte=today_start,checked=0,task_project_id__in=projects_id,task_responsible_uid=collaboratorID)
+        elif query == "This week":
+            tasks = Task.objects.filter(task_token = token,task_due_date_utc__lte=this_week_end,task_due_date_utc__gte=this_week_start,checked=0,task_project_id__in=projects_id,task_responsible_uid=collaboratorID)
+        elif query == 'This month':
+            tasks = Task.objects.filter(task_token = token,task_due_date_utc__lte=this_week_end,task_due_date_utc__gte=this_week_start,checked=0,task_project_id__in=projects_id,task_responsible_uid=collaboratorID)
+        elif query == "Uncompleted":
+            tasks = Task.objects.filter(task_token = token,checked=0,task_project_id__in=projects_id,task_responsible_uid=collaboratorID)
+        else:
+            tasks = Task.objects.filter(task_token = token,task_project_id__in=projects_id,task_responsible_uid=collaboratorID)
+
     for task in tasks:
         overdue=0
         task_today = 0
@@ -178,18 +251,23 @@ def task_calculations(token,profile):
             task_this_week = 1
         if Task.objects.filter(task_id=task.task_id,task_due_date_utc__month=this_month,checked=0).count() is not 0:
             task_this_month=1
+        task_respo_id = 0
+        if task.task_responsible_uid is not None:
+            task_respo_id = task.task_responsible_uid.id
 
 
 
         data.append({
         'task_Content':task.task_Content,
-        'task_project_id':task.task_project_id,
+        'task_project_id':task.task_project_id.Project_ID,
+        'task_responsible_uid':task_respo_id,
         'overdue':overdue,
         'task_today':task_today,
         'task_this_week':task_this_week,
         'task_this_month':task_this_month,
         'checked':task.checked,
-        'item_order':task.item_order
+        'item_order':task.item_order,
+        'indent':task.task_indent
         })
     data.sort(key=lambda x:x['item_order'])
     return data
@@ -283,6 +361,7 @@ def big_calculations(token,profile):
                     "tasks_overall":subsubsubtasks_overall,
                     'project_indent':subsubsubproject.Indent,
                     'project_type':4,
+                    'style':"margin-left:20px"
                     })
 
                 data.append({
@@ -296,6 +375,7 @@ def big_calculations(token,profile):
                 "tasks_overall":subsubtasks_overall,
                 'project_indent':subsubproject.Indent,
                 'project_type':3,
+                'style':"margin-left:15px"
                 })
 
             data.append({
@@ -309,6 +389,7 @@ def big_calculations(token,profile):
             "tasks_overall":subtasks_overall,
             'project_indent':subproject.Indent,
             'project_type':2,
+            'style':"padding:100px;",
             })
 
         data.append({
@@ -322,18 +403,78 @@ def big_calculations(token,profile):
         "tasks_overall":tasks_overall,
         'project_indent':project.Indent,
         'project_type':1,
+        'style':"margin-left:5px;"
         })
     data.sort(key=lambda x:x['item_order'])
 
     return data
 
+def get_project_tree(token,profile,projectinstance, synctime):
+    projlist = []
+
+    for project in Old_Projektas.objects.filter(Project_token=token, Parent_id=None,
+                                            Project_ID=projectinstance.Project_ID, when_deleted=synctime).order_by('item_order'):
+        projlist.append(project.Project_ID)
+        for subproject in Old_Projektas.objects.filter(Project_token=token, Parent_id=project.Project_ID, when_deleted=synctime).order_by(
+                'item_order'):
+            projlist.append(subproject.Project_ID)
+            for subsubproject in Old_Projektas.objects.filter(Project_token=token,
+                                                          Parent_id=subproject.Project_ID, when_deleted=synctime).order_by('item_order'):
+                projlist.append(subsubproject.Project_ID)
+
+                for subsubsubproject in Old_Projektas.objects.filter(Project_token=token,
+                                                                 Parent_id=subsubproject.Project_ID, when_deleted=synctime).order_by(
+                        'item_order'):
+                    projlist.append(subsubsubproject.Project_ID)
+
+    taskIDList = []
+
+    for i in range(len(projlist)):
+        for task in Old_Task.objects.filter(task_project_id=projlist[i], when_deleted=synctime):
+            taskIDList.append(task.task_id)
+
+        i += 1
+
+    return taskIDList
+
 
 
 def ProjectDashboard(request,pk=None):
     instance = get_object_or_404(Projektas,Project_ID=pk)
+    collaboratorID = 0
+
+    query = request.GET.get('q')
+    if not query:
+        query = 0
+
+    # print(query)
     project_data = project_calculations(request.user.userprofile.token,request.user.userprofile,instance)
     # print(project_data)
-    tasks_data = task_calculations(request.user.userprofile.token,request.user.userprofile)
+    project_ids = []
+    for projektas in project_data:
+        project_ids.append(projektas['Project_ID'])
+    # print(project_ids)
+    tasks_data = task_calculations(request.user.userprofile.token,request.user.userprofile,query,project_ids,collaboratorID)
+    # print(tasks_data)
+
+    listukas = []
+    CollaboratorListukas = []
+    mypretasks = Task.objects.filter(task_token=request.user.userprofile.token,task_project_id__in=project_ids)
+    mytasks = mypretasks.values('task_responsible_uid').distinct().exclude(task_responsible_uid__isnull=True)
+    for item in mytasks:
+        CollaboratorPerson = Collaborator.objects.get(id=item['task_responsible_uid'])
+        listukas.append(item['task_responsible_uid'])
+        CollaboratorListukas.append({
+            'ID':item['task_responsible_uid'],
+            "Name":CollaboratorPerson.full_name
+        })
+
+    # print(listukas)
+    # print(CollaboratorListukas)
+
+
+    # print(len(tasks_data))
+    # print(CollaboratorListukas)
     # tasks_data.sort(key=lambda x:x['item_order'])
     checked_count = 0
     for task in tasks_data:
@@ -341,12 +482,263 @@ def ProjectDashboard(request,pk=None):
             checked_count = checked_count + 1
 
     project_count = len(project_data)-1
+    labels = []
+    values = []
+    addedTasks = []
+    deletedTasks = []
+    completedTasks = []
+
+    stuff = SyncedStuff.objects.filter(token=request.user.userprofile).order_by('-sync_time')
+    values = []
+    for item in stuff:
+        oldTaskCount = Old_Task.objects.filter(Task_token=request.user.userprofile.token,
+                                               when_deleted=item.sync_time).count()
+
+    diff = SyncedStuff.objects.filter(token=request.user.userprofile).order_by('sync_time')
+    syncs = []
+    for item in diff:
+        syncs.append(item.sync_time)
+        # print(item.sync_time)
+
+    instance = Projektas.objects.get(Project_ID=instance.Project_ID)
+
+    j = 0
+    i = 0
+    for item in diff:
+        addedTaskDiffList = []
+        deletedTaskDiffList = []
+        completedTaskDiffList = []
+
+        tasksFirst = Old_Task.objects.filter(Task_token=request.user.userprofile.token,
+                                             when_deleted=syncs[i],
+                                             task_id__in=get_project_tree(request.user.userprofile.token,
+                                                                          request.user.userprofile, instance,
+                                                                          syncs[i])).order_by('task_id')
+        tasksSecond = Old_Task.objects.filter(Task_token=request.user.userprofile.token,
+                                              when_deleted=syncs[i + 1],
+                                              task_id__in=get_project_tree(request.user.userprofile.token,
+                                                                           request.user.userprofile, instance,
+                                                                           syncs[i + 1])).order_by('task_id')
+
+        for taskitem in tasksSecond:
+            addedTaskDiffList.append(taskitem.task_Content)
+
+        for taskitem in tasksFirst:
+            deletedTaskDiffList.append(taskitem.task_Content)
+
+        # j = 0
+        for task in tasksSecond:
+            for taskB4 in tasksFirst:
+                if task.task_id == taskB4.task_id:
+                    addedTaskDiffList.remove(task.task_Content)
+
+        for task in tasksSecond:
+            for taskB4 in tasksFirst:
+                if task.task_id == taskB4.task_id:
+                    deletedTaskDiffList.remove(task.task_Content)
+
+        for task in tasksSecond:
+            for taskB4 in tasksFirst:
+                if task.task_id == taskB4.task_id and task.checked == 1 and taskB4.checked == 0:
+                    completedTaskDiffList.append(task.task_Content)
+
+        if i < len(diff) - 2:
+            i += 1
+
+        # print(date, 'added', addedTaskDiffList, '---------- Count --  ',  len(addedTaskDiffList))
+        # print(date, 'deleted', deletedTaskDiffList, '---------- Count --  ',  len(deletedTaskDiffList))
+        # print(date, 'completed', completedTaskDiffList, '---------- Count --  ',  len(completedTaskDiffList))
+        # print('Count of all changes - ', len(addedTaskDiffList)+len(deletedTaskDiffList)+len(completedTaskDiffList))
+        # print()
+
+        if len(addedTaskDiffList) > 0 or len(deletedTaskDiffList) > 0 or len(completedTaskDiffList) > 0:
+            if len(addedTaskDiffList) > 0:
+                addedTasks.append(len(addedTaskDiffList))
+            else:
+                addedTasks.append(0)
+
+            if len(deletedTaskDiffList) > 0:
+                deletedTasks.append(len(deletedTaskDiffList))
+            else:
+                deletedTasks.append(0)
+
+            if len(completedTaskDiffList) > 0:
+                completedTasks.append(len(completedTaskDiffList))
+            else:
+                completedTasks.append(0)
+
+        if len(addedTaskDiffList) + len(deletedTaskDiffList) + len(completedTaskDiffList) > 0:
+            date = syncs[i]
+            date = date.strftime('%Y-%m-%d/%H:%M:%S')
+            labels.append(date)
+
+    stuff = SyncedStuff.objects.filter(token=request.user.userprofile).order_by('-sync_time').count()
+    asdaunas = SyncedStuff.objects.filter(token=request.user.userprofile).order_by('-sync_time')
+    if stuff > 0:
+        last_synced = asdaunas[0].sync_time
+
+
+
     args={'clap':instance,'projects':project_data,'tasks':tasks_data,'project_count':project_count,'checked_count':checked_count,
-    }
+    'addedTasks':addedTasks,'deletedTasks':deletedTasks,'completedTasks':completedTasks,
+          'labels':labels,'values':values,'q':query,"collaborators":CollaboratorListukas,
+          'last_sync':last_synced,"task_count":len(tasks_data)}
     # print(project_data[0]['tasks_overall'])
 
     return render(request,'projektai/projectpage.html',args)
 
+def ProjectCollabDashboard(request,pk=None,id=None):
+    instance = get_object_or_404(Projektas, Project_ID=pk)
+    collabor = get_object_or_404(Collaborator,id=id)
+    collaboratorID = collabor.id
+
+    query = request.GET.get('q')
+    if not query:
+        query = 0
+
+    # print(query)
+    project_data = project_calculations(request.user.userprofile.token, request.user.userprofile, instance)
+    # print(project_data)
+    project_ids = []
+    for projektas in project_data:
+        project_ids.append(projektas['Project_ID'])
+    # print(project_ids)
+    tasks_data = task_calculations(request.user.userprofile.token, request.user.userprofile, query, project_ids,
+                                   collaboratorID)
+
+    listukas = []
+    CollaboratorListukas = []
+    # mytasks = Task.objects.values('task_responsible_uid').distinct().exclude(task_responsible_uid__isnull=True)
+    mypretasks = Task.objects.filter(task_token=request.user.userprofile.token,task_project_id__in=project_ids)
+    mytasks = mypretasks.values('task_responsible_uid').distinct().exclude(task_responsible_uid__isnull=True)
+    for item in mytasks:
+        CollaboratorPerson = Collaborator.objects.get(id=item['task_responsible_uid'])
+        listukas.append(item['task_responsible_uid'])
+        CollaboratorListukas.append({
+            'ID': item['task_responsible_uid'],
+            "Name": CollaboratorPerson.full_name
+        })
+
+    # print(listukas)
+    # print(CollaboratorListukas)
+
+    # print(len(tasks_data))
+    task_count = len(tasks_data)
+    # tasks_data.sort(key=lambda x:x['item_order'])
+    checked_count = 0
+    overdue_count = 0
+    for task in tasks_data:
+        if task['checked'] is 1:
+            checked_count = checked_count + 1
+        if task['overdue'] is 1:
+            overdue_count = overdue_count + 1
+
+    project_count = len(project_data) - 1
+    labels = []
+    values = []
+    addedTasks = []
+    deletedTasks = []
+    completedTasks = []
+
+    stuff = SyncedStuff.objects.filter(token=request.user.userprofile).order_by('-sync_time')
+    values = []
+    for item in stuff:
+        oldTaskCount = Old_Task.objects.filter(Task_token=request.user.userprofile.token,
+                                               when_deleted=item.sync_time).count()
+
+    diff = SyncedStuff.objects.filter(token=request.user.userprofile).order_by('sync_time')
+    syncs = []
+    for item in diff:
+        syncs.append(item.sync_time)
+        # print(item.sync_time)
+
+    instance = Projektas.objects.get(Project_ID=instance.Project_ID)
+
+    j = 0
+    i = 0
+    for item in diff:
+        addedTaskDiffList = []
+        deletedTaskDiffList = []
+        completedTaskDiffList = []
+
+        tasksFirst = Old_Task.objects.filter(Task_token=request.user.userprofile.token,
+                                             when_deleted=syncs[i],
+                                             task_id__in=get_project_tree(request.user.userprofile.token,
+                                                                          request.user.userprofile, instance,
+                                                                          syncs[i])).order_by('task_id')
+        tasksSecond = Old_Task.objects.filter(Task_token=request.user.userprofile.token,
+                                              when_deleted=syncs[i + 1],
+                                              task_id__in=get_project_tree(request.user.userprofile.token,
+                                                                           request.user.userprofile, instance,
+                                                                           syncs[i + 1])).order_by('task_id')
+
+        for taskitem in tasksSecond:
+            addedTaskDiffList.append(taskitem.task_Content)
+
+        for taskitem in tasksFirst:
+            deletedTaskDiffList.append(taskitem.task_Content)
+
+        # j = 0
+        for task in tasksSecond:
+            for taskB4 in tasksFirst:
+                if task.task_id == taskB4.task_id:
+                    addedTaskDiffList.remove(task.task_Content)
+
+        for task in tasksSecond:
+            for taskB4 in tasksFirst:
+                if task.task_id == taskB4.task_id:
+                    deletedTaskDiffList.remove(task.task_Content)
+
+        for task in tasksSecond:
+            for taskB4 in tasksFirst:
+                if task.task_id == taskB4.task_id and task.checked == 1 and taskB4.checked == 0:
+                    completedTaskDiffList.append(task.task_Content)
+
+        if i < len(diff) - 2:
+            i += 1
+
+        # print(date, 'added', addedTaskDiffList, '---------- Count --  ',  len(addedTaskDiffList))
+        # print(date, 'deleted', deletedTaskDiffList, '---------- Count --  ',  len(deletedTaskDiffList))
+        # print(date, 'completed', completedTaskDiffList, '---------- Count --  ',  len(completedTaskDiffList))
+        # print('Count of all changes - ', len(addedTaskDiffList)+len(deletedTaskDiffList)+len(completedTaskDiffList))
+        # print()
+
+        if len(addedTaskDiffList) > 0 or len(deletedTaskDiffList) > 0 or len(completedTaskDiffList) > 0:
+            if len(addedTaskDiffList) > 0:
+                addedTasks.append(len(addedTaskDiffList))
+            else:
+                addedTasks.append(0)
+
+            if len(deletedTaskDiffList) > 0:
+                deletedTasks.append(len(deletedTaskDiffList))
+            else:
+                deletedTasks.append(0)
+
+            if len(completedTaskDiffList) > 0:
+                completedTasks.append(len(completedTaskDiffList))
+            else:
+                completedTasks.append(0)
+
+        if len(addedTaskDiffList) + len(deletedTaskDiffList) + len(completedTaskDiffList) > 0:
+            date = syncs[i]
+            date = date.strftime('%Y-%m-%d/%H:%M:%S')
+            labels.append(date)
+    aretheretasks = False
+
+    print(tasks_data)
+    realprojectids = []
+    for item in tasks_data:
+        realprojectids.append(item['task_project_id'])
+
+    args = {'clap': instance, 'projects': project_data, 'tasks': tasks_data, 'project_count': project_count,
+            'checked_count': checked_count,
+            'addedTasks': addedTasks, 'deletedTasks': deletedTasks, 'completedTasks': completedTasks,
+            'labels': labels, 'values': values, 'q': query, "collaborators": CollaboratorListukas,
+            "task_count":task_count,"overdue_count":overdue_count,'expand':aretheretasks,'collabID':collaboratorID,
+            'existantprojects':realprojectids}
+    # print(project_data[0]['tasks_overall'])
+
+    return render(request,'projektai/projectcollabpage.html',args)
 
 
 
@@ -396,16 +788,11 @@ class IndexView(LoginRequiredMixin, ListView):
     def get_context_data(self,**kwargs):
         big_data = big_calculations(self.request.user.userprofile.token,self.request.user.userprofile)
         context = super(IndexView,self).get_context_data(**kwargs)
-        stuff = SyncedStuff.objects.filter(token = self.request.user.userprofile).order_by('-sync_time')
-        skaicius = []
-        for item in stuff:
-            nania = Old_Task.objects.filter(Task_token=self.request.user.userprofile.token,when_deleted=item.sync_time).count()
-            skaicius.append({
-            'task_count':nania
-            })
-        context['crap'] = skaicius
+        stuff = SyncedStuff.objects.filter(token = self.request.user.userprofile).order_by('-sync_time').count()
+        asdaunas= SyncedStuff.objects.filter(token = self.request.user.userprofile).order_by('-sync_time')
+        if stuff > 0 :
+            context['last_synced_at'] = asdaunas[0].sync_time
         # context['old_sync'] = SyncedStuff.objects.filter(token = self.request.user.userprofile).order_by('-sync_time')
-        context['last_synced_at'] = stuff[0].sync_time
         # synced_dates = []
         # for date in SyncedStuff.objects.filter(token = self.request.user.userprofile).order_by('-sync_time'):
         #     duomuo = date.sync_time
@@ -465,113 +852,116 @@ class IndexView(LoginRequiredMixin, ListView):
         labels = []
         valuesComp = []
         valuesUcomp = []
+        ilgis = SyncedStuff.objects.filter(token=self.request.user.userprofile).order_by('sync_time').count()
 
-        stuff = SyncedStuff.objects.filter(token=self.request.user.userprofile).order_by('-sync_time')
-        values = []
-        for item in stuff:
-            ucompTaskCount = Old_Task.objects.filter(Task_token=self.request.user.userprofile.token,
-                                                   when_deleted=item.sync_time, checked=0).count()
+        if ilgis > 1 :
 
-            compTaskCount = Old_Task.objects.filter(Task_token=self.request.user.userprofile.token,
-                                                   when_deleted=item.sync_time, checked=1).count()
+            stuff = SyncedStuff.objects.filter(token=self.request.user.userprofile).order_by('sync_time')
+            values = []
+            for item in stuff:
+                ucompTaskCount = Old_Task.objects.filter(Task_token=self.request.user.userprofile.token,
+                                                       when_deleted=item.sync_time, checked=0).count()
 
-            date = item.sync_time
-            date = date.strftime('%Y-%m-%d/%H:%M:%S')
-            labels.append(date)
+                compTaskCount = Old_Task.objects.filter(Task_token=self.request.user.userprofile.token,
+                                                       when_deleted=item.sync_time, checked=1).count()
 
-            valuesUcomp.append(ucompTaskCount)
-            valuesComp.append(compTaskCount)
-
-        context['labels'] = labels
-        context['valuesComp'] = valuesComp
-        context['valuesUcomp'] = valuesUcomp
-
-        labelsdiff = []
-        valuesdiff = []
-        addedTasks = []
-        deletedTasks = []
-        completedTasks = []
-        for item in stuff:
-            oldTaskCount = Old_Task.objects.filter(Task_token=self.request.user.userprofile.token,
-                                            when_deleted=item.sync_time).count()
-            # values.append(oldTaskCount)
-            # labels.append(str(item.sync_time))
-
-        diff = SyncedStuff.objects.filter(token=self.request.user.userprofile).order_by('sync_time')
-        syncs = []
-        for item in diff:
-            syncs.append(item.sync_time)
-            # print(item.sync_time)
-
-        difference = []
-        count = 0
-        i = 0
-        for item in diff:
-            addedTaskDiffList = []
-            deletedTaskDiffList = []
-            completedTaskDiffList = []
-            tasksFirst = Old_Task.objects.filter(Task_token=self.request.user.userprofile.token,
-                                            when_deleted=syncs[i]).order_by('task_id')
-            tasksSecond = Old_Task.objects.filter(Task_token=self.request.user.userprofile.token,
-                                            when_deleted=syncs[i+1]).order_by('task_id')
-
-            for taskitem in tasksSecond:
-                addedTaskDiffList.append(taskitem.task_Content)
-
-            for taskitem in tasksFirst:
-                deletedTaskDiffList.append(taskitem.task_Content)
-
-            # j = 0
-            for task in tasksSecond:
-                for taskB4 in tasksFirst:
-                    if task.task_id == taskB4.task_id:
-                        addedTaskDiffList.remove(task.task_Content)
-
-            for task in tasksSecond:
-                for taskB4 in tasksFirst:
-                    if task.task_id == taskB4.task_id:
-                        deletedTaskDiffList.remove(task.task_Content)
-
-            for task in tasksSecond:
-                for taskB4 in tasksFirst:
-                    if task.task_id == taskB4.task_id and task.checked == 1 and taskB4.checked == 0:
-                        completedTaskDiffList.append(task.task_Content)
-
-            if i < len(diff) - 2:
-                i += 1
-
-
-            # print(date, 'added', addedTaskDiffList, '---------- Count --  ',  len(addedTaskDiffList))
-            # print(date, 'deleted', deletedTaskDiffList, '---------- Count --  ',  len(deletedTaskDiffList))
-            # print(date, 'completed', completedTaskDiffList, '---------- Count --  ',  len(completedTaskDiffList))
-            # print('Count of all changes - ', len(addedTaskDiffList)+len(deletedTaskDiffList)+len(completedTaskDiffList))
-            # print()
-            if len(addedTaskDiffList) > 0 or len(deletedTaskDiffList) > 0 or len(completedTaskDiffList) > 0:
-                if len(addedTaskDiffList) > 0:
-                    addedTasks.append(len(addedTaskDiffList))
-                else:
-                    addedTasks.append(0)
-
-                if len(deletedTaskDiffList) > 0:
-                    deletedTasks.append(len(deletedTaskDiffList))
-                else:
-                    deletedTasks.append(0)
-
-                if len(completedTaskDiffList) > 0:
-                    completedTasks.append(len(completedTaskDiffList))
-                else:
-                    completedTasks.append(0)
-
-            if len(addedTaskDiffList) + len(deletedTaskDiffList) + len(completedTaskDiffList) > 0:
-                date = syncs[i]
+                date = item.sync_time
                 date = date.strftime('%Y-%m-%d/%H:%M:%S')
-                labelsdiff.append(date)
+                labels.append(date)
 
-        context['addedTasks'] = addedTasks
-        context['deletedTasks'] = deletedTasks
-        context['completedTasks'] = completedTasks
-        context['labelsdiff'] = labelsdiff
-        context['valuesdiff'] = valuesdiff
+                valuesUcomp.append(ucompTaskCount)
+                valuesComp.append(compTaskCount)
+
+            context['labels'] = labels
+            context['valuesComp'] = valuesComp
+            context['valuesUcomp'] = valuesUcomp
+
+            labelsdiff = []
+            valuesdiff = []
+            addedTasks = []
+            deletedTasks = []
+            completedTasks = []
+            for item in stuff:
+                oldTaskCount = Old_Task.objects.filter(Task_token=self.request.user.userprofile.token,
+                                                when_deleted=item.sync_time).count()
+                # values.append(oldTaskCount)
+                # labels.append(str(item.sync_time))
+
+            diff = SyncedStuff.objects.filter(token=self.request.user.userprofile).order_by('sync_time')
+            syncs = []
+            for item in diff:
+                syncs.append(item.sync_time)
+                # print(item.sync_time)
+
+            difference = []
+            count = 0
+            i = 0
+            for item in diff:
+                addedTaskDiffList = []
+                deletedTaskDiffList = []
+                completedTaskDiffList = []
+                tasksFirst = Old_Task.objects.filter(Task_token=self.request.user.userprofile.token,
+                                                when_deleted=syncs[i]).order_by('task_id')
+                tasksSecond = Old_Task.objects.filter(Task_token=self.request.user.userprofile.token,
+                                                when_deleted=syncs[i+1]).order_by('task_id')
+
+                for taskitem in tasksSecond:
+                    addedTaskDiffList.append(taskitem.task_Content)
+
+                for taskitem in tasksFirst:
+                    deletedTaskDiffList.append(taskitem.task_Content)
+
+                # j = 0
+                for task in tasksSecond:
+                    for taskB4 in tasksFirst:
+                        if task.task_id == taskB4.task_id:
+                            addedTaskDiffList.remove(task.task_Content)
+
+                for task in tasksSecond:
+                    for taskB4 in tasksFirst:
+                        if task.task_id == taskB4.task_id:
+                            deletedTaskDiffList.remove(task.task_Content)
+
+                for task in tasksSecond:
+                    for taskB4 in tasksFirst:
+                        if task.task_id == taskB4.task_id and task.checked == 1 and taskB4.checked == 0:
+                            completedTaskDiffList.append(task.task_Content)
+
+                if i < len(diff) - 2:
+                    i += 1
+
+
+                # print(date, 'added', addedTaskDiffList, '---------- Count --  ',  len(addedTaskDiffList))
+                # print(date, 'deleted', deletedTaskDiffList, '---------- Count --  ',  len(deletedTaskDiffList))
+                # print(date, 'completed', completedTaskDiffList, '---------- Count --  ',  len(completedTaskDiffList))
+                # print('Count of all changes - ', len(addedTaskDiffList)+len(deletedTaskDiffList)+len(completedTaskDiffList))
+                # print()
+                if len(addedTaskDiffList) > 0 or len(deletedTaskDiffList) > 0 or len(completedTaskDiffList) > 0:
+                    if len(addedTaskDiffList) > 0:
+                        addedTasks.append(len(addedTaskDiffList))
+                    else:
+                        addedTasks.append(0)
+
+                    if len(deletedTaskDiffList) > 0:
+                        deletedTasks.append(len(deletedTaskDiffList))
+                    else:
+                        deletedTasks.append(0)
+
+                    if len(completedTaskDiffList) > 0:
+                        completedTasks.append(len(completedTaskDiffList))
+                    else:
+                        completedTasks.append(0)
+
+                if len(addedTaskDiffList) + len(deletedTaskDiffList) + len(completedTaskDiffList) > 0:
+                    date = syncs[i]
+                    date = date.strftime('%Y-%m-%d/%H:%M:%S')
+                    labelsdiff.append(date)
+
+            context['addedTasks'] = addedTasks
+            context['deletedTasks'] = deletedTasks
+            context['completedTasks'] = completedTasks
+            context['labelsdiff'] = labelsdiff
+            context['valuesdiff'] = valuesdiff
 
 
 

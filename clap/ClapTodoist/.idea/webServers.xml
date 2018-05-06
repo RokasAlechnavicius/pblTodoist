@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="WebServers">
+    <option name="servers">
+      <webServer id="3f1cd2a7-3e9d-451c-9e22-ae281a00faf9" name="PBLprojektas" url="http://193.219.91.103">
+        <fileTransfer host="193.219.91.103" port="7394" privateKey="C:\Users\Rokas\Desktop\myprivate.txt" rootFolder="/var/www/html" accessType="SFTP" keyPair="true">
+          <advancedOptions>
+            <advancedOptions dataProtectionLevel="Private" />
+          </advancedOptions>
+          <option name="port" value="7394" />
+        </fileTransfer>
+      </webServer>
+    </option>
+  </component>
+</project>

@@ -1,6 +1,30 @@
 {% extends "base.html"%}
 {% block content %}
-  <!-- <canvas id="myPieChart" width="400" height="400"></canvas> -->
+{% load static %}
+
+<script>
+var accordions = document.getElementsByClassName("accordion");
+
+for (var i = 0; i < accordions.length; i++) {
+  accordions[i].onclick = function() {
+    this.classList.toggle('is-open');
+
+    var content = this.nextElementSibling;
+    if (content.style.maxHeight) {
+      // accordion is currently open, so close it
+      content.style.maxHeight = null;
+    } else {
+      // accordion is currently closed, so open it
+      content.style.maxHeight = content.scrollHeight + "px";
+    }
+  }
+}
+
+
+
+
+</script>
+    <!-- <canvas id="myPieChart" width="400" height="400"></canvas> -->
     <div id="myDiv"><!-- Plotly chart will be drawn inside this DIV --></div> -->
 <script>
 
@@ -19,6 +43,42 @@ var ctx = document.getElementById("myPieChart");
     options: [],
   })
 </script> -->
+
+<div class="container">
+  <h1>Accordions</h1>
+  {% for project in post_list %}
+    {% if project.Indent is 1 %}
+    <button class="accordion">{{ project.Project_name }}</button>
+    <div class="accordion-content">
+      <p>
+        {% for project2 in post_list %}
+          {%if project2.Indent == 2%}
+            {% if project2.Parent_id.Project_ID == project.Project_ID %}
+            <button class="accordion">{{ project2.Project_name }}</button>
+            <div class="accordion-content">
+              <p>
+                {% for project3 in post_list %}
+                  {%if project3.Indent == 3%}
+                    {% if project3.Parent_id.Project_ID == project.Project_ID %}
+                  <button class="accordion">{{ project3.Project_name }}</button>
+                  {{project3.Project_name}} is a subproject of {{project.Project_name}}
+                  {%elif project3.Parent_id.Project_ID == project2.Project_ID%}
+                    <label for = "project3{{ forloop.counter}}">
+                      {{project3.Project_name}} is a subproject of {{project2.Project_name}}
+                      </label><br>
+
+                {% endif %}
+                {%endif%}
+                {%endfor%}
+              </p>
+            </div>
+        {% endif %}
+        {%endif%}
+        {%endfor%}
+      </p>
+    </div>
+    {% endif %}
+    {% endfor %}
 
 <div class="container-fluid">
     <table>
@@ -104,4 +164,5 @@ var ctx = document.getElementById("myPieChart");
     </table>
 
   </div>
+  <script src="{% static 'js/scripts.js' %}" ></script>
 {% endblock %}
