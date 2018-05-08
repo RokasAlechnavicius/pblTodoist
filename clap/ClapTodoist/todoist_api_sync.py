@@ -34,56 +34,12 @@ def make_dir(input_stringP):
         print('Directory {} created'.format(dirpath))
 
 
-api = TodoistAPI('3ca2e79e1e14ec7de944dd93cc910ba12a9ccb29')
+api = TodoistAPI('inject shit')
 
 
 # Retrieving all projects, syncing with todoist api
-api.sync()
 
-i = 0
-j = 0
-data = {}
-dataT = {}
-data = []
-dataT = []
-for item in api.state['projects']:
-    pid = api.state['projects'][i]['id']
-    print(api.state['projects'][i]['item_order'])
-    data.append({
-        'model': 'projektai.projektas',
-        'pk': api.state['projects'][i]['id'],
-        'fields': {
-            'Project_name': api.state['projects'][i]['name'],
-            'Parent_id': api.state['projects'][i]['parent_id'],
-            'Color': api.state['projects'][i]['color'],
-            'Indent': api.state['projects'][i]['indent'],
-        }
-    })
-
-    for task in api.state['items']:
-        if api.state['projects'][i]['id'] == api.state['items'][j]['project_id']:
-            dataT.append({
-                'model': 'projektai.task',
-                'pk': api.state['items'][j]['id'],
-                'fields': {
-                    'task_Content': api.state['items'][j]['content'],
-                    'task_project_id': api.state['items'][j]['project_id'],
-                    'task_parent_id': api.state['items'][j]['parent_id'],
-                    'task_priority': api.state['items'][j]['priority'],
-                    'task_indent': api.state['items'][j]['indent'],
-                    'task_date_added': datefix(api.state['items'][j]['date_added']),
-                    'task_due_date_utc': datefix(api.state['items'][j]['due_date_utc']),
-                    'task_uid': api.state['items'][j]['user_id'],
-                    'task_responsible_uid': api.state['items'][j]['responsible_uid'],
-                }
-            })
-
-            with open('tasks.json', 'w') as fp:
-                json.dump(dataT, fp)
-
-        j = j+1
-
-    with open('projects.json', 'w') as fp:
-        json.dump(data, fp)
-    j = 0
-    i = i + 1
+if api.sync():
+	print("good sync")
+else:
+	print("bad sync")

@@ -13,7 +13,7 @@ class Collaborator(models.Model):
 class UserProfile(models.Model):
     user = models.OneToOneField(User,on_delete=models.CASCADE)
     userid = models.BigIntegerField(unique=True,blank=True,null=True)
-    token = models.CharField(max_length=100,unique=True,blank=True,null=True)
+    token = models.CharField(max_length=100,unique=True,null=True)
     email = models.EmailField(unique=True,blank=True,null=True)
     full_name = models.CharField(max_length=100,blank=True,null=True)
     inbox_project = models.IntegerField(blank=True,null=True)

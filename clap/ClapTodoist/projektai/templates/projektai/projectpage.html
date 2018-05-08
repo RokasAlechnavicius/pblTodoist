@@ -70,7 +70,7 @@
                             </div>
                         </div>
                     </div>
-                {% if q is 0 %}
+                {% if q is 0 or q == 'Remove filter' %}
                     <div class="col-lg-3 col-sm-6">
                         <div class="card">
                             <div class="content">
@@ -124,13 +124,14 @@
                                     <input class="btn btn-info" name="q" type="submit" value="Today">
                                     <input class="btn btn-info" name="q" type="submit" value="This week">
                                     <input class="btn btn-info" name="q" type="submit" value="This month">
-{#                                    <input class="btn btn-warning" name="q" type="submit" value="Uncompleted">#}
+                                    <input class="btn btn-warning" name="q" type="submit" value="Uncompleted">
+                                     {% if q is not 0 %}
+                                         <input class="btn btn-success" name="q" type="submit" value="Remove filter">
+
+                                    {% endif %}
 
                                 </form>
-                                        {% if q is not 0 %}
 
-                                    <button class="btn btn-success"><a href="{% url 'projektai:ProjectDashboard' pk=clap.Project_ID %}" </a>Remove filter</button>
-                                    {% endif %}
                                         </div>
                                     </div>
                                 </div>
@@ -202,15 +203,15 @@
                                   <tr class='accordion success projectbase'>
                                     <th style="{{project.style}}">
                                       {% if project.project_type is 1 %}
-                                      <span class="ti-crown"> {{project.Project_name}}</span>
+                                      <span id="{{ project.color }}" class="ti-crown"></span> {{project.Project_name}}
                                       {% elif project.project_type is 2 %}
-                                      &emsp;<span class="ti-harddrives"> {{project.Project_name}}</span>
+                                      &emsp;<span id="{{ project.color }}" class="ti-harddrives red"></span> {{project.Project_name}}
                                       {% elif project.project_type is 3 %}
-                                      &emsp;&emsp;<span class="ti-harddrives"> {{project.Project_name}}</span>
+                                      &emsp;&emsp;<span id="{{ project.color }}" class="ti-harddrives yellow"></span> {{project.Project_name}}
                                       {% elif project.project_type is 4 %}
-                                      &emsp;&emsp;&emsp;<span class="ti-harddrives"> {{project.Project_name}}</span>
+                                      &emsp;&emsp;&emsp;<span id="{{ project.color }}" class="ti-harddrives"></span> {{project.Project_name}}
                                       {% endif %}
-                                      {% if q is 0 %}
+                                      {% if q is 0 or q == 'Remove filter' %}
                                       {% if project.own_tasks is not 0%}
                                       (Click to expand)
                                       {% endif %}
@@ -235,6 +236,12 @@
                                       (click to expand(This month))
                                       {% endif %}
                                       {% endif %}
+                                    {% if q == 'Uncompleted' %}
+                                      {% if project.own_checked < project.own_tasks %}
+                                      (click to expand(Uncomplete))
+                                      {% endif %}
+                                      {% endif %}
+
                                      </th>
                                     <th class="alignment" width= "10%">{{project.overdue}}</th>
                                     <th class="alignment" width= "10%">{{project.tasks_today}}</th>
@@ -243,7 +250,7 @@
                                     <th class="alignment" width= "10%">{{project.tasks_overall}} </th>
                                   </tr>
 
-                                  {% if q is 0 %}
+                                  {% if q is 0 or q == 'Remove filter' %}
                                   {% if project.own_tasks is not 0 %}
                                   <tr class="taskinfo">
 
@@ -297,6 +304,19 @@
                                       {% endif %}
                                       {% if q == 'This month' %}
                                       {% if project.own_this_month is not 0  %}
+                                      <tr class="taskinfo">
+
+                                            <th class="alignment">Tasks of {{project.Project_name}}</th>
+                                            <th class="alignment">Overdue</th>
+                                            <th class="alignment">Due today</th>
+                                            <th class="alignment">Due this week</th>
+                                            <th class="alignment">Due this month</th>
+                                            <th class="alignment">Is complete</th>
+                                          </tr>
+                                      {% endif %}
+                                      {% endif %}
+                                                                    {% if q == 'Uncompleted' %}
+                                      {% if project.own_checked < project.own_tasks  %}
                                       <tr class="taskinfo">
 
                                             <th class="alignment">Tasks of {{project.Project_name}}</th>

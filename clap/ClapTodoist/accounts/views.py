@@ -14,10 +14,18 @@ from django.urls import reverse_lazy
 from django.views.generic import CreateView
 from accounts.forms import EditProfileInformationForm
 from .models import Collaborator
-from projektai.views import IndexView
 from . import forms
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import User
+from . import tasks
+from celery.schedules import crontab
+
+
+def automatic_syncing():
+    useriu_tokenai = tasks.list_users_and_stuff()
+    # print(useriu_tokenai)
+    return useriu_tokenai
 
 class SignUp(CreateView):
     form_class = forms.UserCreateForm
@@ -271,9 +279,6 @@ def resync(request):
     resyncing(user.userprofile.token,user.userprofile)
     i_am_check(user.userprofile.token)
     syncTodoist(user.userprofile.token,user.userprofile)
-    resyncing(user.userprofile.token, user.userprofile)
-    i_am_check(user.userprofile.token)
-    syncTodoist(user.userprofile.token, user.userprofile)
     return redirect('/projektai/')
 
 def decode(strC):
@@ -302,8 +307,11 @@ def datefix(dt):
 # Create your views here.
 @login_required(login_url = 'login')
 def profile(request):
+    # useriu_tokenai = automatic_syncing()
+    # print(useriu_tokenai)
     user = request.user
     if user.userprofile.token is None:
+
         return edit_profile(request)
     else:
         # syncTodoist(user.userprofile.token)

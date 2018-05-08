@@ -55,6 +55,7 @@
                             </div>
                         </div>
                     </div>
+                <!-- Trigger the modal with a button -->
                     <div class="col-lg-3 col-sm-6">
                         <div class="card">
                             <div class="content">
@@ -74,7 +75,7 @@
                                 <div class="footer">
                                     <hr />
                                     <div class="stats">
-                                        <i class="ti-timer"></i> In projects: {% for project in overdue_projects %}
+                                        <i class="ti-timer clap"></i> In projects: {% for project in overdue_projects %}
                                       <a href="{% url 'projektai:ProjectDashboard' pk=project.Project_ID %}">
                                         <b>{{project.Project_name}}({{project.overdue}}) </b>
                                       </a>
@@ -142,7 +143,7 @@
                                 {% for item in data_json%}
                                 {% if item.project_type is 1 %}
                                   <tr>
-                                    <td><a href="{% url 'projektai:ProjectDashboard' pk=item.Project_ID %}">{{item.Project_name}}</a> </td>
+                                    <td><span id="{{ item.color }}" class="glyphicon glyphicon-adjust {{ item.color }}"><a class="{{ item.color }}" href="{% url 'projektai:ProjectDashboard' pk=item.Project_ID %}"> {{item.Project_name}}</a></span> </td>
                                     <td>{{item.overdue}}</td>
                                     <td>{{item.tasks_today}}</td>
                                     <td>{{item.tasks_this_week}}</td>

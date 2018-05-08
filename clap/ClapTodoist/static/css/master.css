@@ -1,0 +1,215 @@
+#calendar-container {
+    position: fixed;
+    top: 100px;
+    left: 300px;
+    right: 50px;
+    bottom: 50px;
+  }
+
+  .demo-topbar { /* will be stripped out */
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 40px;
+  }
+
+  .demo-topbar + #calendar-container { /* will be stripped out */
+    top: 40px;
+    left: 200px;
+  }
+
+  .fc-header-toolbar {
+    /*
+    the calendar will be butting up against the edges,
+    but let's scoot in the header's buttons
+    */
+    padding-top: 1em;
+    padding-left: 1em;
+    padding-right: 1em;
+  }
+.fc-title{
+    font-size: .9em;
+}
+
+table {
+  font-family: Helvetica, Arial, sans-serif;
+  border-collapse: collapse;
+  width: 100%;
+}
+
+td, th {
+  border: 1px solid #dddddd;
+  text-align: left;
+  padding: 8px;
+}
+
+.alignment{
+  text-align: center;
+}
+.kapowbadassdude{
+  background-color: #D3D3D3;
+}
+.taskinfo{
+  background-color: #778899;
+}
+#customers {
+    font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+    border-collapse: collapse;
+    width: 100%;
+}
+
+#customers td, #customers th {
+    border: 1px solid #ddd;
+    padding: 8px;
+}
+
+#customers tr:nth-child(even){background-color: #f2f2f2;}
+
+#customers tr:hover {background-color: #ddd;}
+
+#customers th {
+    padding-top: 12px;
+    padding-bottom: 12px;
+    text-align: left;
+    background-color: #4CAF50;
+    color: white;
+}
+
+.container {
+  width: 80%;
+  max-width: 600px;
+  margin: 50px auto;
+}
+
+button.accordion {
+  width: 100%;
+  background-color: whitesmoke;
+  border: none;
+  outline: none;
+  text-align: left;
+  padding: 15px 20px;
+  font-size: 18px;
+  color: #444;
+  cursor: pointer;
+  transition: background-color 0.2s linear;
+}
+
+button.accordion:after {
+  content: '\f055';
+  font-family: "fontawesome";
+  font-size: 14px;
+  float: right;
+}
+
+button.accordion.is-open:after {
+  content: '\f056';
+}
+
+button.accordion:hover, button.accordion.is-open {
+  background-color: #ddd;
+}
+
+.accordion-content {
+  background-color: white;
+  border-left: 1px solid whitesmoke;
+  border-right: 1px solid whitesmoke;
+  padding: 0 20px;
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.2s ease-in-out;
+}
+[id="0"]{
+    color: #95ef63;
+}
+[id="1"]{
+    color: #ff8581;
+}
+[id="2"]{
+    color: #ffc471;
+}
+[id="3"]{
+    color: #f9ec75;
+}
+[id="4"]{
+    color: #a8c8e4;
+}
+[id="5"]{
+    color: #d2b8a3;
+}
+[id="6"]{
+    color: #e2a8e4;
+}
+[id="7"]{
+    color: #cccccc;
+        text-color:black;
+}
+[id="8"]{
+    color: #fb886e;
+}
+[id="9"]{
+    color: #ffcc00;
+}
+[id="10"]{
+    color: #74e8d3;
+}
+[id="11"]{
+    color: #3bd5fb;
+}
+[id="12"]{
+    color: #dc4fad;
+}
+[id="13"]{
+    color: #ac193d;
+}
+[id="14"]{
+    color: #d24726;
+}
+[id="15"]{
+    color: #82ba00;
+}
+[id="16"]{
+    color: #03b3b2;
+}
+[id="17"]{
+    color: #008299;
+}
+[id="18"]{
+    color: #5db2ff;
+}
+[id="19"]{
+    color: #0072c6;
+}
+[id="20"]{
+    color: #000000;
+}
+[id="21"]{
+    color: #777777;
+}
+#overlay {
+        background: #ffffff;
+        color: #666666;
+        position: fixed;
+        height: 100%;
+        width: 100%;
+        z-index: 5000;
+        top: 0;
+        left: 0;
+        float: left;
+        text-align: center;
+        padding-top: 25%;
+    }
+div#contentas {
+    display: none;
+    }
+
+div#loading {
+    top: 200 px;
+    margin: auto;
+    position: absolute;
+    z-index: 1000;
+    width: 160px;
+    height: 24px;
+    background: url(loadingimage.gif) no-repeat;
+    cursor: wait;
+    }

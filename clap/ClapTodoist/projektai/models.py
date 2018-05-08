@@ -6,14 +6,14 @@ from django.utils import timezone
 
 
 class SyncedStuff(models.Model):
-    token = models.ForeignKey(UserProfile,to_field='token',on_delete=models.CASCADE)
+    token = models.ForeignKey(UserProfile,to_field='token',on_delete=models.CASCADE,null=True)
     sync_time = models.DateTimeField(default=datetime.datetime.now(tz=timezone.utc))
 
     def __str__(self):
         return str(self.sync_time) + " sync for user " + str(self.token)
 
 class Projektas(models.Model):
-    Project_token = models.ForeignKey(UserProfile,to_field='token',on_delete=models.CASCADE,null=True)
+    Project_token = models.ForeignKey(UserProfile, to_field='token', on_delete=models.CASCADE,null=True)
     Project_name = models.CharField(max_length=100)
     Project_ID = models.BigIntegerField(primary_key=True)
     Parent_id = models.ForeignKey('self',to_field='Project_ID',null=True,blank=True,on_delete=models.CASCADE)
