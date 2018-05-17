@@ -130,9 +130,9 @@ $('.nav > li > a[href="'+pathname+'"]').parent().addClass('active');
 {#                      </a>#}
 {#                  </li>#}
                   <li>
-                      <a href="">
+                      <a href="{%  url 'projektai:backups' %}">
                           <i class="ti-pencil-alt2"></i>
-                          <p> Differences(not existant yet)</p>
+                          <p> BACKUP INFORMATION</p>
                       </a>
                   </li>
                   <li>
@@ -175,16 +175,17 @@ $('.nav > li > a[href="'+pathname+'"]').parent().addClass('active');
                           <li>
                               <a href="#" class="dropdown-toggle" data-toggle="dropdown">
                                   <i class="ti-panel"></i>
-  								<p>Stats</p>
+  								<p>Stats #TODO</p>
                               </a>
                           </li>
-
+                        {% if user.is_authenticated %}
   						<li>
-                              <a href="#">
+                              <a href="{% url 'accounts:settings' pk=user.userprofile.id %}">
   								<i class="ti-settings"></i>
   								<p>Settings</p>
                               </a>
                           </li>
+                      {% endif %}
                           {% if user.is_authenticated %}
                           <li>
                                           <a href="{% url 'accounts:logout' %}">
@@ -236,14 +237,14 @@ $('.nav > li > a[href="'+pathname+'"]').parent().addClass('active');
       </div>
   </div>
 
-{#<div id="overlay">#}
-{#    <img src="{% static 'giffy.gif' %}" alt="Loading" /><br/>#}
-{#    Loading...#}
-{#</div>#}
-{#  <script>#}
-{#    jQuery(window).load(function(){#}
-{#    jQuery('#overlay').fadeOut();#}
-{#    });#}
-{#</script>#}
+<div id="overlay">
+    <img src="{% static 'giffy.gif' %}" alt="Loading" /><br/>
+    Loading...
+</div>
+  <script>
+    jQuery(window).load(function(){
+    jQuery('#overlay').fadeOut();
+    });
+</script>
   </body>
 </html>

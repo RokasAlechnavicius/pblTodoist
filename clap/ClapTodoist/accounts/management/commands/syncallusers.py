@@ -12,7 +12,7 @@ class Command(BaseCommand):
         for user in users:
             if user.userprofile.token is not None:
                 views.resyncing(user.userprofile.token, user.userprofile)
-                views.i_am_check(user.userprofile.token)
+                views.i_am_check(user.userprofile.token,user.userprofile.old_versions_count)
                 views.syncTodoist(user.userprofile.token, user.userprofile)
 
 # self.stdout.write(self.style.SUCCESS('Successfully synced users'))

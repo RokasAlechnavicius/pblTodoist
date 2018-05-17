@@ -2,12 +2,16 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.db.models.signals import post_save
 import json
+from django.urls import reverse
 # Create your models here.
 
 class Collaborator(models.Model):
     id = models.BigIntegerField(primary_key=True)
     email = models.EmailField(blank=True,null=True)
     full_name = models.CharField(max_length=50,blank=True,null=True)
+
+    def __str__(self):
+        return self.full_name
 
 
 class UserProfile(models.Model):
@@ -31,8 +35,10 @@ class UserProfile(models.Model):
     is_biz_admin = models.BooleanField(default=False)
     business_account_id = models.ForeignKey('self',to_field='id',blank=True,null=True,on_delete=models.PROTECT)
     join_date = models.DateTimeField(blank=True,null=True)
+    old_versions_count = models.IntegerField(default=10)
 
-
+    def get_absolute_url(self):
+        return reverse("accounts:settings", kwargs={'pk': self.pk})
 
 
     def __str__(self):

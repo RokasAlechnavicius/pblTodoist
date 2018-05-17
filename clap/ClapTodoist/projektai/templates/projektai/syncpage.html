@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+{%  block content %}
+<p>{{ syncinstance }}</p>
+    <table id ="customers">
+    <thead>
+    <tr>
+        <th>Task ID</th>
+        <th>Task content</th>
+        <th> was checked</th>
+        <th>exists now?</th>
+        <th>checked now?</th>
+        <th>restore?</th>
+    </tr>
+    </thead>
+    <tbody>
+{% for task in oldtasks %}
+      {% if task.thistasknow == "deleted!" %}
+    <tr>
+        <td>{{ task.task_id }}</td>
+    <td>{{ task.task_Content }}</td>
+    <td>{{ task.checked }}</td>
+    <td>{{ task.thistasknow }}</td>
+    <td>{{ task.checkednow }}</td>
+    <td>
+        {% if task.thistasknow == "deleted!" %}
+        <a href="{% url 'projektai:restoretask' pk=syncinstance.id id=task.task_id %}"><button class="btn btn-danger">RESTORE</button></a>
+        {% else %}
+        Nothing to restore
+        {% endif %}
+     {% endif %}
+
+    </td>
+    </tr>
+    {% endfor %}
+    </tbody>
+
+    </table>
+
+{% endblock %}

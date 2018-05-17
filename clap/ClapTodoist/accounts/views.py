@@ -9,17 +9,19 @@ from projektai.models import Projektas,Task,Old_Task,Old_Projektas,SyncedStuff
 from django.core import serializers
 import time
 import datetime
-from django.contrib.auth import login, logout
+from django.contrib.auth import login, logout, update_session_auth_hash
 from django.urls import reverse_lazy
-from django.views.generic import CreateView
+from django.views.generic import CreateView, UpdateView, DeleteView
 from accounts.forms import EditProfileInformationForm
-from .models import Collaborator
+from .models import Collaborator, UserProfile
+from django.views import generic
 from . import forms
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
-from . import tasks
-from celery.schedules import crontab
+from django.contrib.auth.forms import PasswordChangeForm
+from django.contrib import messages
+from ratelimit.decorators import ratelimit
 
 
 def automatic_syncing():
@@ -31,6 +33,36 @@ class SignUp(CreateView):
     form_class = forms.UserCreateForm
     success_url = reverse_lazy("login")
     template_name = "accounts/signup.html"
+
+class SettingView(LoginRequiredMixin,generic.DetailView):
+    model = UserProfile
+    template_name = 'accounts/settings.html'
+
+class UserProfileUpdate(LoginRequiredMixin,UpdateView):
+    model = UserProfile
+    fields = ['full_name', 'email','old_versions_count', 'mobile_number']
+
+
+
+def change_password(request):
+    if request.method == 'POST':
+        form = PasswordChangeForm(request.user, request.POST)
+        if form.is_valid():
+            user = form.save()
+            update_session_auth_hash(request, user)  # Important!
+            messages.success(request, 'Your password was successfully updated!')
+            return redirect('/projektai/')
+        else:
+            messages.error(request, 'Please correct the error below.')
+    else:
+        form = PasswordChangeForm(request.user)
+    return render(request, 'accounts/userprofile_form.html', {
+        'form': form
+    })
+
+
+
+
 
 @login_required(login_url = 'login')
 def edit_profile(request):
@@ -130,14 +162,17 @@ def resyncing(token,profilis):
 
     return
 
-def i_am_check(token):
+def i_am_check(token,old_versions_count):
     a=1
-    nani = SyncedStuff.objects.filter(token = token).order_by('sync_time')
+    # nani = SyncedStuff.objects.filter(token = token).order_by('sync_time')
     for synced in SyncedStuff.objects.filter(token = token).order_by('sync_time'):
-        if a == 1 and len(nani)>20:
+        nani = SyncedStuff.objects.filter(token=token).order_by('sync_time')
+        if len(nani)>old_versions_count:
             Old_Projektas.objects.filter(Project_token=token,when_deleted=synced.sync_time).delete()
             Old_Task.objects.filter(Task_token=token,when_deleted=synced.sync_time).delete()
             synced.delete()
+            # print(len(nani))
+            # print(old_versions_count)
             a=a+1
 
 # def checking_limits(request):
@@ -156,10 +191,12 @@ def syncTodoist(token,profilis):
 
     api.sync()
     i = 0
-    Collaborator.objects.filter(id = api.state['user']['id']).update(full_name=api.state['user']['full_name'])
-    Collaborator.objects.get_or_create(id = api.state['user']['id'],full_name=api.state['user']['full_name'])
+    Collaborator.objects.filter(id = api.state['user']['id']).update(full_name=api.state['user']['full_name'],email=api.state['user']['email'])
+    Collaborator.objects.get_or_create(id = api.state['user']['id'],full_name=api.state['user']['full_name'],email=api.state['user']['email'])
     for item in api.state['collaborators']:
         if api.state['collaborators'][i]['id'] != api.state['user']['id']:
+            Collaborator.objects.filter(id=api.state['collaborators'][i]['id']).update(email=api.state['collaborators'][i]['email'],
+                                                full_name=str(unicodedata2.normalize('NFKD', (api.state['collaborators'][i]['full_name'])).encode('ascii','ignore'))[2:-1])
             Collaborator.objects.get_or_create(id=api.state['collaborators'][i]['id'],
                                                 email=api.state['collaborators'][i]['email'],
                                                 full_name=str(unicodedata2.normalize('NFKD', (api.state['collaborators'][i]['full_name'])).encode('ascii','ignore'))[2:-1])
@@ -271,13 +308,14 @@ def syncTodoist(token,profilis):
 
     # print('we did it reddit')
 
-
+@ratelimit(key='ip',rate='1/m',method=ratelimit.ALL,block=True)
 @login_required(login_url = 'login')
 def resync(request):
+    print(request.META['REMOTE_ADDR'])
     user = request.user
     # file = open('kek.txt','w')
     resyncing(user.userprofile.token,user.userprofile)
-    i_am_check(user.userprofile.token)
+    i_am_check(user.userprofile.token,user.userprofile.old_versions_count)
     syncTodoist(user.userprofile.token,user.userprofile)
     return redirect('/projektai/')
 
@@ -316,6 +354,7 @@ def profile(request):
     else:
         # syncTodoist(user.userprofile.token)
     # print("Tasks sync is Done")
-        args ={'user':request.user}
-        return render(request,'test.html',args)
+        return redirect('/projektai/')
+        # args ={'user':request.user}
+        # return render(request,'test.html',args)
         #return IndexView.as_view(request)

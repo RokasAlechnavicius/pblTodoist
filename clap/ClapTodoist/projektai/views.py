@@ -10,7 +10,7 @@ from django.http import JsonResponse,HttpResponse
 import datetime
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.decorators import login_required
-from accounts.tasks import list_users_and_stuff
+import todoist
 
 def project_calculations(token,profile,projectinstance):
     data = []
@@ -465,7 +465,7 @@ def get_project_tree(token,profile,projectinstance, synctime):
     return taskIDList
 
 
-@login_required
+@login_required(login_url = 'login')
 def ProjectDashboard(request,pk=None):
     instance = get_object_or_404(Projektas,Project_ID=pk)
     collaboratorID = 0
@@ -478,8 +478,13 @@ def ProjectDashboard(request,pk=None):
     project_data = project_calculations(request.user.userprofile.token,request.user.userprofile,instance)
     # print(project_data)
     project_ids = []
+    labelspie = []
+    valuespie = []
     for projektas in project_data:
         project_ids.append(projektas['Project_ID'])
+        if projektas['own_tasks'] is not 0:
+            labelspie.append(projektas['Project_name'])
+            valuespie.append(projektas['own_tasks'])
     # print(project_ids)
     tasks_data = task_calculations(request.user.userprofile.token,request.user.userprofile,query,project_ids,collaboratorID)
     # print(tasks_data)
@@ -495,6 +500,8 @@ def ProjectDashboard(request,pk=None):
             'ID':item['task_responsible_uid'],
             "Name":CollaboratorPerson.full_name
         })
+
+
 
     # print(listukas)
     # print(CollaboratorListukas)
@@ -613,12 +620,13 @@ def ProjectDashboard(request,pk=None):
     args={'clap':instance,'projects':project_data,'tasks':tasks_data,'project_count':project_count,'checked_count':checked_count,
     'addedTasks':addedTasks,'deletedTasks':deletedTasks,'completedTasks':completedTasks,
           'labels':labels,'values':values,'q':query,"collaborators":CollaboratorListukas,
-          'last_sync':last_synced,"task_count":len(tasks_data)}
+          'last_sync':last_synced,"task_count":len(tasks_data),
+          'labelspie':labelspie,'valuespie':valuespie}
     # print(project_data[0]['tasks_overall'])
 
     return render(request,'projektai/projectpage.html',args)
 
-@login_required
+@login_required(login_url = 'login')
 def ProjectCollabDashboard(request,pk=None,id=None):
     instance = get_object_or_404(Projektas, Project_ID=pk)
     collabor = get_object_or_404(Collaborator,id=id)
@@ -776,15 +784,12 @@ def ProjectCollabDashboard(request,pk=None,id=None):
 
 
 
-
+@login_required(login_url = 'login')
 def smart(request):
     data = big_calculations(request.user.userprofile.token,request.user.userprofile)
     # print(data)
     return render(request,'projektai/smart.html',{'data_json':data})
-# Loading Data from a Static JSON String
-# Example to create a Column 2D chart with the chart data passed in JSON string format.
-# The `fc_json` method is defined to load chart data from a JSON string.
-# **Step 1:** Create the FusionCharts object in a view action
+
 @login_required(login_url = 'login')
 def megakek(request):
     user = request.user
@@ -1003,6 +1008,26 @@ class IndexView(LoginRequiredMixin, ListView):
             context['labelsdiff'] = labelsdiff
             context['valuesdiff'] = valuesdiff
 
+        labelspie = []
+        valuespie = []
+        count = 0
+
+        for project in Projektas.objects.filter(Project_token=self.request.user.userprofile.token):
+            # labels.append(project.Project_name)
+            for task in Task.objects.filter(task_project_id=project.Project_ID):
+                # if project.Project_ID == task.task_project_id:
+                count = count + 1
+
+            if count != 0:
+                valuespie.append(count)
+                name = project.Project_name
+                # print(name)
+                labelspie.append(name)
+                # print(project.Project_name)
+            # values.append(count)
+            count = 0
+        context['valuespie'] = valuespie
+        context['labelspie'] = labelspie
 
 
         return context
@@ -1069,3 +1094,89 @@ class KekView(LoginRequiredMixin, ListView):
         context['Indents'] = ProjectIndents
         context['Xvalues'] = NumberIndents
         return context
+
+
+def backuplist(request):
+    syncs = SyncedStuff.objects.filter(token=request.user.userprofile.token).order_by('-sync_time')
+
+
+    args = {'syncs':syncs}
+    return render(request,'projektai/backupsinfo.html',args)
+
+def RestoreSync(request,pk=None):
+    syncinstance = get_object_or_404(SyncedStuff,id=pk)
+    tasksnow = Task.objects.filter(task_token = request.user.userprofile.token)
+    tasksold = Old_Task.objects.filter(when_deleted = syncinstance.sync_time)
+    listofold = []
+    for oldtask in tasksold:
+        if Task.objects.filter(task_id=oldtask.task_id).count() is 1:
+             thistasknow = "exists"
+             task = Task.objects.get(task_id = oldtask.task_id)
+             checkednow = task.checked
+        else:
+             thistasknow = "deleted!"
+             checkednow = "does not exist"
+
+        # print(thistasknow)
+        listofold.append({
+            'task_id':oldtask.task_id,
+            'task_Content':oldtask.task_Content,
+            'checked':oldtask.checked,
+            'thistasknow':thistasknow,
+            'checkednow':checkednow
+        })
+
+    # print(listofold)
+    args = {'syncinstance':syncinstance,'oldtasks':listofold}
+
+    return render(request,'projektai/syncpage.html',args)
+
+
+def RestoreSyncTask(request,pk=None,id=None):
+    syncinstance = get_object_or_404(SyncedStuff,id=pk)
+
+    old_task = Old_Task.objects.get(when_deleted=syncinstance.sync_time,task_id=id)
+    # print(old_task.task_id)
+    if old_task.task_responsible_uid is None:
+        responsible = None
+    else:
+        responsible = old_task.task_responsible_uid
+    api = todoist.TodoistAPI(request.user.userprofile.token)
+    # item = api.items.get_by_id(old_task.task_id)
+    item2 = api.items.add(old_task.task_Content,old_task.task_project_id)
+    item2.update(assigned_by_uid = old_task.task_uid,
+                 checked = old_task.checked,
+                 date_added = old_task.task_date_added,
+                 indent = old_task.task_indent,
+                 item_order = old_task.item_order,
+                 priority = old_task.task_priority,
+                 responsible_uid = responsible,
+                 due_date_utc = old_task.task_due_date_utc)
+
+    api.commit()
+    # print(item2['id'])
+    Old_Task.objects.filter(task_id=id).update(task_id=item2['id'])
+    # Task.objects.filter(task_id=id).update(task_id=item2['id'])
+    if old_task.task_responsible_uid is not None:
+        responsible2 = Collaborator.objects.get(id=old_task.task_responsible_uid)
+    else:
+        responsible2 = None
+    newtask = Task(task_id=item2['id'],
+                   task_token = request.user.userprofile,
+                   task_Content = old_task.task_Content,
+                   task_project_id=Projektas.objects.get(Project_ID=old_task.task_project_id),
+                   item_order=old_task.item_order,
+                   task_priority=old_task.task_priority,
+                   task_indent=old_task.task_indent,
+                   task_date_added=old_task.task_date_added,
+                   task_due_date_utc=old_task.task_due_date_utc,
+                   task_uid=Collaborator.objects.get(id=old_task.task_uid),
+                   task_responsible_uid=responsible2,
+                   checked=old_task.checked,
+                   in_history=old_task.in_history,
+                   is_deleted=old_task.is_deleted
+                   )
+    newtask.save()
+    # print(item)
+    return redirect('projektai:restoresync',pk=syncinstance.id)
+

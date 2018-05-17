@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="col-md-12">
+    <div class="card">
+        <div class="header">
+            <h4 class="title">Overview of your account</h4>
+        </div>
+          <div class="content">
+            <table>
+              <tr>
+                <th>User name:</th>
+                <td>{{user.userprofile.user}}</td>
+              </tr>
+              <tr>
+                <th>Email</th>
+                <td>{{user.userprofile.email}}</td>
+              </tr>
+              <tr>
+                <th>Full name</th>
+                <td>{{user.userprofile.full_name}}</td>
+              </tr>
+              <tr>
+                <th>Token</th>
+                <td>{{user.userprofile.token}}</td>
+              </tr>
+              <tr>
+                <th>Amount of old versions to store</th>
+                <td>{{user.userprofile.old_versions_count}}</td>
+              </tr>
+              <tr>
+                <th>Mobile number</th>
+                <td>{{user.userprofile.mobile_number}}</td>
+              </tr>
+              <tr>
+                <th>Is your account premium</th>
+                <td>{{user.userprofile.is_premium}}</td>
+              </tr>
+              <tr>
+                <th>Your account is premium until</th>
+                <td>{{user.userprofile.premium_until}}</td>
+              </tr>
+            </table>
+          </div>
+      </div>
+    </div>
+    <div class="col-md-12">
+        <div class="card">
+            <div class="content">
+              <ul>
+              <button class="btn"><span class="glyphicon glyphicon-plus"></span><a href="{% url 'accounts:update-setting' pk=user.userprofile.id %}">Update details</a></button>
+              <button class="btn"><span class="glyphicon glyphicon-alert"><a href="{%  url 'accounts:change_password' %}">Change password</a></span></button>
+            </ul>
+            </div>
+        </div>
+      </div>
+{% endblock %}

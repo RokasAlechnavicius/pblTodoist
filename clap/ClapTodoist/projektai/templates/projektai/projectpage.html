@@ -147,10 +147,11 @@
                                         <div class="numbers">
                                             <p>Filter tasks by a collaborator</p>
                                             {% for collab in collaborators %}
-                                                <button class="btn btn-info" >
-                                                <a href="{% url 'projektai:ProjectCollabDashboard' pk=clap.Project_ID id=collab.ID %}">{{ collab.Name }}</a>
+                                                <a href="{% url 'projektai:ProjectCollabDashboard' pk=clap.Project_ID id=collab.ID %}">
+                                                    <button class="btn btn-info" >{{ collab.Name }}</button>
+                                                </a>
 
-                                                </button>
+
                                             {% endfor %}
                                         </div>
                                     </div>
@@ -383,7 +384,7 @@
                     <div class="col-md-12">
                         <div class="card">
                             <div class="header">
-                                <h4 class="title">Select a graph</h4>
+                                <h4 class="title"></h4>
                             </div>
                             <div class="content">
                                <div id="myDiv"></div>
@@ -426,33 +427,30 @@
                     <div class="col-md-6">
                         <div class="card">
                             <div class="header">
-                                <h4 class="title">Select a graph</h4>
+                                <h4 class="title"></h4>
                             </div>
                             <div class="content">
-                                <div class="footer">
-																	<p>todo</p>
-                                    <hr>
-                                    <div class="stats">
-                                        <i class="ti-timer"></i> Campaign sent 2 days ago
-                                    </div>
-                                </div>
+
+
                             </div>
                         </div>
                     </div>
                     <div class="col-md-6">
                         <div class="card ">
                             <div class="header">
-                                <h4 class="title">select another graph</h4>
+                                <h4 class="title"> Pie chart of tasks in project {{ clap.Project_name }}</h4>
                             </div>
                             <div class="content">
+                                <div id="myDivpie"><!-- Plotly chart will be drawn inside this DIV --></div> -->
+<script>
 
-                                <div class="footer">
-																	<p>todo</p>
-                                    <hr>
-                                    <div class="stats">
-                                        <i class="ti-check"></i> Data information certified
-                                    </div>
-                                </div>
+  var data = [{
+    values: {{valuespie}},
+    labels: {{labelspie|safe}},
+    type: 'pie'
+  }];
+  Plotly.newPlot('myDivpie', data);
+</script>
                             </div>
                         </div>
                     </div>

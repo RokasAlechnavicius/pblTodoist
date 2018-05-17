@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+    <table>
+    <tr>
+            <th>sync time</th>
+
+        </tr>
+    {% for sync in syncs %}
+        <tr>
+            <td>{{ sync.sync_time }}</td>
+        <td><a href="{% url 'projektai:restoresync' pk=sync.id %}">Check what is gone</a></td>
+        </tr>
+    {% endfor %}
+    </table>
+{% endblock %}

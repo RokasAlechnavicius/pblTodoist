@@ -211,7 +211,7 @@
                     <div class="col-md-6">
                         <div class="card">
                             <div class="header">
-                                <h4 class="title">Select a graph</h4>
+                                <h4 class="title"></h4>
                             </div>
                             <div class="content">
                               <div id="myDivas"></div>
@@ -251,17 +251,20 @@
                     <div class="col-md-6">
                         <div class="card ">
                             <div class="header">
-                                <h4 class="title">select another graph</h4>
+                                <h4 class="title">Pie chart of tasks in all projects</h4>
                             </div>
                             <div class="content">
 
-                                <div class="footer">
-																	<p>todo</p>
-                                    <hr>
-                                    <div class="stats">
-                                        <i class="ti-check"></i> Data information certified
-                                    </div>
-                                </div>
+                                <div id="myDivpie"><!-- Plotly chart will be drawn inside this DIV --></div> -->
+<script>
+
+  var data = [{
+    values: {{valuespie}},
+    labels: {{labelspie|safe}},
+    type: 'pie'
+  }];
+  Plotly.newPlot('myDivpie', data);
+</script>
                             </div>
                         </div>
                     </div>

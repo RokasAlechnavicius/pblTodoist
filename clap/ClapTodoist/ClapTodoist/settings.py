@@ -131,3 +131,11 @@ STATIC_URL = '/static/'
 STATICFILES_DIRS = [os.path.join(BASE_DIR,'static')]
 LOGIN_REDIRECT_URL = 'accounts:profile'
 LOGOUT_REDIRECT_URL = "thanks"
+CELERY_BROKER_URL = 'amqp://localhost'
+CELERY_BEAT_SCHEDULE = {
+    'task-number-one':{
+        'task': 'accounts.tasks.list_users_and_stuff',
+        'schedule': timedelta(seconds=50)
+    }
+}
+
