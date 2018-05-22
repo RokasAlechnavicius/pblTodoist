@@ -3,6 +3,11 @@
 {% load bootstrap3 %}
 <form class="" method="post">
   {% csrf_token %}
+    {% if exists is 0 %}
+<div class="alert alert-danger">
+  <strong>Please enter a valid API key</strong>
+</div>
+    {% endif %}
   {% bootstrap_form profile_form %}
   <button type="submit" name="button">Submit</button>
 </form>

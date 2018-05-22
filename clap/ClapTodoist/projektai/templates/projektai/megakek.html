@@ -26,7 +26,6 @@
 		style: 'qtip-light'
 	}).qtip('api');
               $('#calendar').fullCalendar({
-                  // defaultDate: '2018-04-19',
                   height: 'parent',
                   header: {
                     left: 'month,basicWeek,basicDay custom1',
@@ -35,10 +34,10 @@
                   },
                   selectable: true,
                   eventLimit: true,
-              dayClick: function() { tooltip.hide() },
-		eventResizeStart: function() { tooltip.hide() },
-		eventDragStart: function() { tooltip.hide() },
-		viewDisplay: function() { tooltip.hide() },
+                  dayClick: function() { tooltip.hide() },
+                  eventResizeStart: function() { tooltip.hide() },
+                  eventDragStart: function() { tooltip.hide() },
+                  viewDisplay: function() { tooltip.hide() },
                   events: [
                       {% for i in events %}
 
@@ -61,17 +60,17 @@
                   ],
 
                 eventClick: function(data, event, view) {
-            var content =
-                '<h5>' + 'Task: ' +data.title+'</h5>' +
+                    var content =
+                    '<h5>' + 'Task: ' +data.title+'</h5>' +
                     '<h5>'+ 'Responsibility: ' + data.description+'</h5>' +
                     '<h5>' + 'Created on: ' + data.created+'</h5>'
-                ;
+                    ;
 
-            tooltip.set({
-                'content.text': content
-            })
-            .reposition(event).show(event);
-        },
+                    tooltip.set({
+                    'content.text': content
+                    })
+                    .reposition(event).show(event);
+                 },
                   select: function(start, end, allDay)
                  {
                      $('#calendar').fullCalendar('gotoDate', start);

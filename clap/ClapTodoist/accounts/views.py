@@ -70,6 +70,12 @@ def edit_profile(request):
     if request.method == 'POST' :
         profile_form = EditProfileInformationForm(data=request.POST,instance = request.user.userprofile)
         if profile_form.is_valid():
+            apikey=profile_form.cleaned_data.get('token')
+            api = TodoistAPI(apikey)
+            if api.state['user'] == {}:
+                profile_form = EditProfileInformationForm(instance=request.user.userprofile)
+                args = {'profile_form': profile_form,'exists':0}
+                return render(request, 'accounts/profileform.html', args)
             profile_form.save()
             syncTodoist(user.userprofile.token,user.userprofile)
             # resyncing(user.userprofile.token, user.userprofile)
@@ -81,7 +87,7 @@ def edit_profile(request):
 
     else:
         profile_form = EditProfileInformationForm(instance = request.user.userprofile)
-    args = {'profile_form':profile_form}
+    args = {'profile_form':profile_form,'exists':1}
     return render(request,'accounts/profileform.html',args)
 
 

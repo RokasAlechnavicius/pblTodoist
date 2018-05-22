@@ -785,32 +785,26 @@ def ProjectCollabDashboard(request,pk=None,id=None):
 
 
 @login_required(login_url = 'login')
-def smart(request):
-    data = big_calculations(request.user.userprofile.token,request.user.userprofile)
-    # print(data)
-    return render(request,'projektai/smart.html',{'data_json':data})
-
-@login_required(login_url = 'login')
 def megakek(request):
     user = request.user
     all_events = Task.objects.filter(task_token=user.userprofile.token).exclude(task_due_date_utc__isnull=True,)
-    for event in all_events:
-        pass
-    if request.GET:
-        event_arr = []
-        for i in all_events:
-            event_sub_arr = {}
-            assigned = 'No one has been assigned this task'
-            if i.task_responsible_uid is not None:
-                assigned = "the person responsible for this task is: " + i.task_responsible_uid.full_name
-            event_sub_arr['assigned'] = assigned
-            event_sub_arr['title'] = i.task_Content
-            start_date = datetime.datetime.strptime(str(i.task_date_added.date()), "%Y-%m-%d").strftime("%Y-%m-%d")
-            end_date = datetime.datetime.strptime(str(i.task_due_date_utc.date()), "%Y-%m-%d").strftime("%Y-%m-%d")
-            event_sub_arr['start'] = start_date
-            event_sub_arr['end'] = end_date
-            event_arr.append(event_sub_arr)
-        return HttpResponse(json.dumps(event_arr))
+    # for event in all_events:
+    #     pass
+    # if request.GET:
+    #     event_arr = []
+    #     for i in all_events:
+    #         event_sub_arr = {}
+    #         assigned = 'No one has been assigned this task'
+    #         if i.task_responsible_uid is not None:
+    #             assigned = "the person responsible for this task is: " + i.task_responsible_uid.full_name
+    #         event_sub_arr['assigned'] = assigned
+    #         event_sub_arr['title'] = i.task_Content
+    #         start_date = datetime.datetime.strptime(str(i.task_date_added.date()), "%Y-%m-%d").strftime("%Y-%m-%d")
+    #         end_date = datetime.datetime.strptime(str(i.task_due_date_utc.date()), "%Y-%m-%d").strftime("%Y-%m-%d")
+    #         event_sub_arr['start'] = start_date
+    #         event_sub_arr['end'] = end_date
+    #         event_arr.append(event_sub_arr)
+    #     return HttpResponse(json.dumps(event_arr))
     context = {
     'events':all_events
     }

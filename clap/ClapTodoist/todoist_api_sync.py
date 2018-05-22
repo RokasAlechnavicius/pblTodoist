@@ -34,7 +34,7 @@ def make_dir(input_stringP):
         print('Directory {} created'.format(dirpath))
 
 
-api = TodoistAPI('inject shit')
+api = TodoistAPI('nani')
 
 
 # Retrieving all projects, syncing with todoist api
@@ -43,3 +43,9 @@ if api.sync():
 	print("good sync")
 else:
 	print("bad sync")
+	
+print(api.state['user'])
+if api.state['user'] == {}:
+	print("none")
+else:
+	print('exists')
