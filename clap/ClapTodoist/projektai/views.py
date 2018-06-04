@@ -22,7 +22,7 @@ def project_calculations(token,profile,projectinstance):
     this_week_end = this_week_start + datetime.timedelta(days=6)
     this_month = datetime.datetime.now().month
 
-    for project in Projektas.objects.filter(Project_token=token,Parent_id=None,Project_ID=projectinstance.Project_ID).order_by('item_order'):
+    for project in Projektas.objects.filter(Project_token=token, Parent_id=None, Project_ID=projectinstance.Project_ID).order_by('item_order'):
         overdue = Task.objects.filter(task_project_id=project.Project_ID,task_token=token,task_due_date_utc__isnull=False,task_due_date_utc__lte=datetime.datetime.now(),checked=False).count()
         tasks_today = Task.objects.filter(task_project_id=project.Project_ID,task_token=token,task_due_date_utc__lte=today_end,task_due_date_utc__gte=today_start,checked=False).count()
         tasks_this_week = Task.objects.filter(task_project_id=project.Project_ID,task_token=token,task_due_date_utc__lte=this_week_end,task_due_date_utc__gte=this_week_start,checked=False).count()
@@ -35,7 +35,7 @@ def project_calculations(token,profile,projectinstance):
         own_this_month = Task.objects.filter(task_project_id=project.Project_ID,task_token=token,task_due_date_utc__month=this_month,checked=False).count()
         own_checked = Task.objects.filter(task_project_id=project.Project_ID,task_token=token,checked=1).count()
 
-        for subproject in Projektas.objects.filter(Project_token=token,Parent_id=project.Project_ID).order_by('item_order'):
+        for subproject in Projektas.objects.filter(Project_token=token, Parent_id=project.Project_ID).order_by('item_order'):
             sub_overdue = Task.objects.filter(task_project_id=subproject.Project_ID,task_token=token,task_due_date_utc__isnull=False,task_due_date_utc__lte=datetime.datetime.now(),checked=False).count()
             overdue=overdue+sub_overdue
 
@@ -56,7 +56,7 @@ def project_calculations(token,profile,projectinstance):
             subown_checked = Task.objects.filter(task_project_id=subproject.Project_ID, task_token=token, checked=1).count()
             subtasks_overall =  Task.objects.filter(task_project_id=subproject.Project_ID,task_token=token).count()
             tasks_overall = tasks_overall + subtasks_overall
-            for subsubproject in Projektas.objects.filter(Project_token=token,Parent_id=subproject.Project_ID).order_by('item_order'):
+            for subsubproject in Projektas.objects.filter(Project_token=token, Parent_id=subproject.Project_ID).order_by('item_order'):
                 sub_sub_overdue = Task.objects.filter(task_project_id=subsubproject.Project_ID,task_token=token,task_due_date_utc__isnull=False,task_due_date_utc__lte=datetime.datetime.now(),checked=False).count()
                 overdue=overdue+sub_sub_overdue
                 sub_overdue=sub_overdue+sub_sub_overdue
@@ -85,7 +85,7 @@ def project_calculations(token,profile,projectinstance):
                 subsubown_checked = Task.objects.filter(task_project_id=subsubproject.Project_ID, task_token=token,
                                                      checked=1).count()
 
-                for subsubsubproject in Projektas.objects.filter(Project_token=token,Parent_id=subsubproject.Project_ID).order_by('item_order'):
+                for subsubsubproject in Projektas.objects.filter(Project_token=token, Parent_id=subsubproject.Project_ID).order_by('item_order'):
                     sub_sub_sub_overdue = Task.objects.filter(task_project_id=subsubsubproject.Project_ID,task_token=token,task_due_date_utc__isnull=False,task_due_date_utc__lte=datetime.datetime.now(),checked=False).count()
                     overdue=overdue+sub_sub_sub_overdue
                     sub_overdue=sub_overdue+sub_sub_sub_overdue
@@ -306,13 +306,13 @@ def big_calculations(token,profile):
     this_week_end = this_week_start + datetime.timedelta(days=6)
     this_month = datetime.datetime.now().month
 
-    for project in Projektas.objects.filter(Project_token=token,Parent_id=None).order_by('item_order'):
+    for project in Projektas.objects.filter(Project_token=token, Parent_id=None).order_by('item_order'):
         overdue = Task.objects.filter(task_project_id=project.Project_ID,task_token=token,task_due_date_utc__isnull=False,task_due_date_utc__lte=datetime.datetime.now(),checked=False).count()
         tasks_today = Task.objects.filter(task_project_id=project.Project_ID,task_token=token,task_due_date_utc__lte=today_end,task_due_date_utc__gte=today_start,checked=False).count()
         tasks_this_week = Task.objects.filter(task_project_id=project.Project_ID,task_token=token,task_due_date_utc__lte=this_week_end,task_due_date_utc__gte=this_week_start,checked=False).count()
         tasks_this_month = Task.objects.filter(task_project_id=project.Project_ID,task_token=token,task_due_date_utc__month=this_month,checked=False).count()
         tasks_overall =  Task.objects.filter(task_project_id=project.Project_ID,task_token=token).count()
-        for subproject in Projektas.objects.filter(Project_token=token,Parent_id=project.Project_ID).order_by('item_order'):
+        for subproject in Projektas.objects.filter(Project_token=token, Parent_id=project.Project_ID).order_by('item_order'):
             sub_overdue = Task.objects.filter(task_project_id=subproject.Project_ID,task_token=token,task_due_date_utc__isnull=False,task_due_date_utc__lte=datetime.datetime.now(),checked=False).count()
             overdue=overdue+sub_overdue
 
@@ -327,7 +327,7 @@ def big_calculations(token,profile):
 
             subtasks_overall =  Task.objects.filter(task_project_id=subproject.Project_ID,task_token=token).count()
             tasks_overall = tasks_overall + subtasks_overall
-            for subsubproject in Projektas.objects.filter(Project_token=token,Parent_id=subproject.Project_ID).order_by('item_order'):
+            for subsubproject in Projektas.objects.filter(Project_token=token, Parent_id=subproject.Project_ID).order_by('item_order'):
                 sub_sub_overdue = Task.objects.filter(task_project_id=subsubproject.Project_ID,task_token=token,task_due_date_utc__isnull=False,task_due_date_utc__lte=datetime.datetime.now(),checked=False).count()
                 overdue=overdue+sub_sub_overdue
                 sub_overdue=sub_overdue+sub_sub_overdue
@@ -347,7 +347,7 @@ def big_calculations(token,profile):
                 subsubtasks_overall =  Task.objects.filter(task_project_id=subsubproject.Project_ID,task_token=token).count()
                 tasks_overall = tasks_overall + subsubtasks_overall
                 subtasks_overall = subtasks_overall + subsubtasks_overall
-                for subsubsubproject in Projektas.objects.filter(Project_token=token,Parent_id=subsubproject.Project_ID).order_by('item_order'):
+                for subsubsubproject in Projektas.objects.filter(Project_token=token, Parent_id=subsubproject.Project_ID).order_by('item_order'):
                     sub_sub_sub_overdue = Task.objects.filter(task_project_id=subsubsubproject.Project_ID,task_token=token,task_due_date_utc__isnull=False,task_due_date_utc__lte=datetime.datetime.now(),checked=False).count()
                     overdue=overdue+sub_sub_sub_overdue
                     sub_overdue=sub_overdue+sub_sub_overdue
@@ -467,7 +467,7 @@ def get_project_tree(token,profile,projectinstance, synctime):
 
 @login_required(login_url = 'login')
 def ProjectDashboard(request,pk=None):
-    instance = get_object_or_404(Projektas,Project_ID=pk)
+    instance = get_object_or_404(Projektas, Project_ID=pk)
     collaboratorID = 0
 
     query = request.GET.get('q')
@@ -822,7 +822,7 @@ class IndexView(LoginRequiredMixin, ListView):
     template_name = 'projektai/index.html'
 
     def get_queryset(self):
-        return Projektas.objects.filter(Project_token=self.request.user.userprofile.token,is_deleted=0).order_by('item_order')
+        return Projektas.objects.filter(Project_token=self.request.user.userprofile.token, is_deleted=0).order_by('item_order')
 
     def get_context_data(self,**kwargs):
         big_data = big_calculations(self.request.user.userprofile.token,self.request.user.userprofile)
@@ -1038,7 +1038,7 @@ class KekView(LoginRequiredMixin, ListView):
     queryset = Projektas.objects.all()
 
     def get_queryset(self):
-        return Projektas.objects.filter(Project_token=self.request.user.userprofile.token,is_deleted=0).order_by('Project_ID')
+        return Projektas.objects.filter(Project_token=self.request.user.userprofile.token, is_deleted=0).order_by('Project_ID')
 
 
     def get_context_data(self,**kwargs):
@@ -1048,7 +1048,7 @@ class KekView(LoginRequiredMixin, ListView):
         NumberIndents = []
         i=1
         a=0
-        context['kekas']=len(Projektas.objects.filter(Project_token=self.request.user.userprofile.token,is_deleted=a))
+        context['kekas']=len(Projektas.objects.filter(Project_token=self.request.user.userprofile.token, is_deleted=a))
         for projektas in Projektas.objects.filter(Project_token=self.request.user.userprofile.token):
             # print(projektas.Indent)
             ProjectIndents.append(projektas.Indent)
@@ -1173,4 +1173,131 @@ def RestoreSyncTask(request,pk=None,id=None):
     newtask.save()
     # print(item)
     return redirect('projektai:restoresync',pk=syncinstance.id)
+	
+class StatsView(LoginRequiredMixin, ListView):
+    context_object_name = 'post_list'
+    template_name = 'projektai/stats.html'
+
+    def get_queryset(self):
+        return Projektas.objects.filter(Project_token=self.request.user.userprofile.token, is_deleted=0).order_by('item_order')
+
+    def get_context_data(self,**kwargs):
+        context = super(StatsView,self).get_context_data(**kwargs)
+        ilgis = SyncedStuff.objects.filter(token=self.request.user.userprofile).order_by('sync_time').count()
+
+        if ilgis > 1 :
+
+
+            labelsdiff = []
+            valuesdiff = []
+            addedTasks = []
+            addpersync = []
+            comppersync = []
+            delpersync = []
+            deletedTasks = []
+            completedTasks = []
+
+
+            diff = SyncedStuff.objects.filter(token=self.request.user.userprofile).order_by('sync_time')
+            syncs = []
+            for item in diff:
+                syncs.append(item.sync_time)
+
+            i = 0
+            for item in diff:
+                addedTaskDiffList = []
+
+                deletedTaskDiffList = []
+                completedTaskDiffList = []
+                tasksFirst = Old_Task.objects.filter(Task_token=self.request.user.userprofile.token,
+                                                when_deleted=syncs[i]).order_by('task_id')
+                tasksSecond = Old_Task.objects.filter(Task_token=self.request.user.userprofile.token,
+                                                when_deleted=syncs[i+1]).order_by('task_id')
+
+                for taskitem in tasksSecond:
+                    addedTaskDiffList.append(taskitem.task_Content)
+
+                for taskitem in tasksFirst:
+                    deletedTaskDiffList.append(taskitem.task_Content)
+
+                # j = 0
+                for task in tasksSecond:
+                    for taskB4 in tasksFirst:
+                        if task.task_id == taskB4.task_id:
+                            addedTaskDiffList.remove(task.task_Content)
+
+                for task in tasksSecond:
+                    for taskB4 in tasksFirst:
+                        if task.task_id == taskB4.task_id:
+                            deletedTaskDiffList.remove(task.task_Content)
+
+                for task in tasksSecond:
+                    for taskB4 in tasksFirst:
+                        if task.task_id == taskB4.task_id and task.checked == 1 and taskB4.checked == 0:
+                            completedTaskDiffList.append(task.task_Content)
+
+                if i < len(diff) - 2:
+                    i += 1
+
+
+                # print(date, 'added', addedTaskDiffList, '---------- Count --  ',  len(addedTaskDiffList))
+                # print(date, 'deleted', deletedTaskDiffList, '---------- Count --  ',  len(deletedTaskDiffList))
+                # print(date, 'completed', completedTaskDiffList, '---------- Count --  ',  len(completedTaskDiffList))
+                # print('Count of all changes - ', len(addedTaskDiffList)+len(deletedTaskDiffList)+len(completedTaskDiffList))
+                # print()
+                if len(addedTaskDiffList) > 0 or len(deletedTaskDiffList) > 0 or len(completedTaskDiffList) > 0:
+                    if len(addedTaskDiffList) > 0:
+                        addedTasks.append(addedTaskDiffList)
+                        addpersync.append(len(addedTaskDiffList))
+                    else:
+                        addedTasks.append(0)
+                        addpersync.append(0)
+
+                    if len(deletedTaskDiffList) > 0:
+                        deletedTasks.append(deletedTaskDiffList)
+                        delpersync.append(len(deletedTaskDiffList))
+                    else:
+                        deletedTasks.append(0)
+                        delpersync.append(0)
+
+                    if len(completedTaskDiffList) > 0:
+                        completedTasks.append(completedTaskDiffList)
+                        comppersync.append(len(completedTaskDiffList))
+                    else:
+                        completedTasks.append(0)
+                        comppersync.append(0)
+
+                if len(addedTaskDiffList) + len(deletedTaskDiffList) + len(completedTaskDiffList) > 0:
+                    date = syncs[i]
+                    date = date.strftime('%Y-%m-%d/%H:%M:%S')
+                    labelsdiff.append(date)
+            if len(addpersync) is not 0:
+                avgadd = round(sum(addpersync)/len(addpersync),2)
+            else:
+                avgadd= 0
+            if len(comppersync) is not 0:
+                avgcomp = round(sum(comppersync)/len(comppersync),2)
+            else:
+                avgcomp = 0
+            if len(delpersync) is not 0:
+                avgdel = round(sum(delpersync)/len(delpersync),2)
+            else:
+                avgdel = 0
+
+            context['delpersync'] = delpersync
+            context['avgdel'] = avgdel
+            context['comppersync'] = comppersync
+            context['avgcomp'] = avgcomp
+            context['addpersync'] = addpersync
+            context['avgadd'] = avgadd
+            context['labelsdiff'] = labelsdiff
+
+
+
+            context['task_data'] = zip(addedTasks, labelsdiff)
+            context['task_data1'] = zip(completedTasks, labelsdiff)
+            context['task_data2'] = zip(deletedTasks, labelsdiff)
+
+
+        return context
 

@@ -1,0 +1,130 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="col-md-12">
+    <div class="card">
+        <div class="header">
+            <h4 class="title">Statistics of your account</h4>
+        </div>
+          <div class="content">
+            <table>
+              <tr>
+                <th>Tasks added:</th>
+                {% for addpersync  in addpersync  %}
+                <td>{{ addpersync }}</td>
+                 {% endfor %}
+                <td>{{avgadd}}</td>
+              </tr>
+
+              <tr>
+                <th>Tasks completed:</th>
+                {% for comppersync  in comppersync  %}
+                <td>{{ comppersync }}</td>
+                 {% endfor %}
+                <td>{{avgcomp}}</td>
+              </tr>
+
+              <tr>
+                <th>Tasks deleted:</th>
+                {% for delpersync  in delpersync  %}
+                <td>{{ delpersync }}</td>
+                 {% endfor %}
+                <td>{{avgdel}}</td>
+              </tr>
+            </table>
+          </div>
+      </div>
+    </div>
+
+    <div class="row">
+
+        <div class="col-md-12">
+            <div class="card">
+                <div class="header">
+
+                    <h4 class="title">Overview of added tasks</h4>
+
+                </div>
+
+                <div class="content">
+                  <script>
+                  $(function() {
+                      var $research = $('.research');
+                      $research.find("tr").not('.accordion').hide();
+                      $research.find("tr").eq(0).show();
+
+                      $research.find(".accordion").click(function(){
+                          $research.find('.accordion').not(this).siblings().fadeOut(500);
+                          $(this).siblings().fadeToggle(500);
+                      }).eq(0).trigger('click');
+                  });
+                  </script>
+
+                      {% for addedTasks, labelsdiff in task_data %}
+                      <table class='research'>
+                      <tr class='accordion success projectbase'>
+                        <td style="{{project.style}}">
+
+                          Tasks added at: {{labelsdiff}}
+                        </td>
+                            </tr>
+                            <tr>
+                          {% if addedTasks != 0  %}
+                          {% for addedTasks in addedTasks %}
+                          <td> {{addedTasks}}</td>
+                        </tr>
+                          {% endfor %}
+                          {% endif %}
+                        </table>
+                      {% endfor %}
+                      <h4 class="title">Overview of completed tasks</h4>
+                      {% for completedTasks, labelsdiff in task_data1 %}
+                      <table class='research'>
+                      <tr class='accordion success projectbase'>
+                        <td style="{{project.style}}">
+                          Tasks completed at: {{labelsdiff}}
+                        </td>
+                            </tr>
+                            <tr>
+                          {% if completedTasks != 0 %}
+                          {% for completedTasks in completedTasks %}
+                          <td> {{completedTasks}}</td>
+                        </tr>
+                          {% endfor %}
+                          {% endif %}
+                        </table>
+                      {% endfor %}
+                      <h4 class="title">Overview of deleted tasks</h4>
+                      {% for deletedTasks, labelsdiff in task_data2 %}
+                      <table class='research'>
+                      <tr class='accordion success projectbase'>
+                        <td style="{{project.style}}">
+                          Tasks deleted at: {{labelsdiff}}
+                        </td>
+                            </tr>
+                            <tr>
+                          {% if deletedTasks != 0 %}
+                          {% for deletedTasks in deletedTasks %}
+                          <td> {{deletedTasks}}</td>
+                        </tr>
+                          {% endfor %}
+                          {% endif %}
+                        </table>
+                      {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+{% for labelsdiff in labelsdiff%}
+{{labelsdiff}}
+
+{%endfor%}
+
+
+
+
+
+{% endblock %}

@@ -70,11 +70,13 @@ def edit_profile(request):
     if request.method == 'POST' :
         profile_form = EditProfileInformationForm(data=request.POST,instance = request.user.userprofile)
         if profile_form.is_valid():
-            apikey=profile_form.cleaned_data.get('token')
-            api = TodoistAPI(apikey)
+            profile_form.save()
+            api = TodoistAPI(request.user.userprofile.token)
             if api.state['user'] == {}:
                 profile_form = EditProfileInformationForm(instance=request.user.userprofile)
-                args = {'profile_form': profile_form,'exists':0}
+                UserProfile.objects.filter(token=request.user.userprofile.token).update(token="failure")
+                kek2 = request.user.userprofile.token
+                args = {'profile_form': profile_form,'exists':0,'key':kek2}
                 return render(request, 'accounts/profileform.html', args)
             profile_form.save()
             syncTodoist(user.userprofile.token,user.userprofile)
@@ -256,15 +258,15 @@ def syncTodoist(token,profilis):
         else:
             parentas = None
         Projektas.objects.create(Project_ID=item['Project_ID'],
-                                Project_token=item['Project_token'],
-                                Project_name=item['Project_name'],
-                                Parent_id = parentas,
-                                Color = item['Color'],
-                                Indent = item['Indent'],
-                                item_order=item['item_order'],
-                                is_deleted = item['is_deleted'],
-                                is_archived = item['is_archived']
-                                )
+                                 Project_token=item['Project_token'],
+                                 Project_name=item['Project_name'],
+                                 Parent_id = parentas,
+                                 Color = item['Color'],
+                                 Indent = item['Indent'],
+                                 item_order=item['item_order'],
+                                 is_deleted = item['is_deleted'],
+                                 is_archived = item['is_archived']
+                                 )
 
 
     monkaT.sort(key=lambda x:(x['item_order']))
@@ -314,7 +316,7 @@ def syncTodoist(token,profilis):
 
     # print('we did it reddit')
 
-@ratelimit(key='ip',rate='1/m',method=ratelimit.ALL,block=True)
+@ratelimit(key='ip',rate='2/m',method=ratelimit.ALL,block=True)
 @login_required(login_url = 'login')
 def resync(request):
     print(request.META['REMOTE_ADDR'])
@@ -354,7 +356,7 @@ def profile(request):
     # useriu_tokenai = automatic_syncing()
     # print(useriu_tokenai)
     user = request.user
-    if user.userprofile.token is None:
+    if user.userprofile.token is None or user.userprofile.token == "failure":
 
         return edit_profile(request)
     else:

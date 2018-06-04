@@ -173,9 +173,9 @@ $('.nav > li > a[href="'+pathname+'"]').parent().addClass('active');
                   <div class="collapse navbar-collapse">
                       <ul class="nav navbar-nav navbar-right">
                           <li>
-                              <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                              <a href="{% url 'projektai:stat' %}">
                                   <i class="ti-panel"></i>
-  								<p>Stats #TODO</p>
+  								<p>Stats todo</p>
                               </a>
                           </li>
                         {% if user.is_authenticated %}

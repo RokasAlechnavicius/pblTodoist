@@ -29,7 +29,7 @@ class Task(models.Model):
     task_token =  models.ForeignKey(UserProfile,to_field='token',on_delete=models.CASCADE,null=True)
     task_Content = models.TextField(null=True,blank=True)
     task_id = models.BigIntegerField(primary_key=True)
-    task_project_id = models.ForeignKey(Projektas,to_field='Project_ID',on_delete=models.CASCADE)
+    task_project_id = models.ForeignKey(Projektas, to_field='Project_ID', on_delete=models.CASCADE)
     # task_parent_id = models.ForeignKey('self',to_field='task_id',null=True,blank=True,on_delete=models.CASCADE)
     item_order = models.IntegerField(blank=True,null=True)
     task_priority = models.IntegerField(null=True,blank=True)
