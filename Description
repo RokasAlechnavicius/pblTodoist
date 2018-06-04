@@ -1,0 +1,5 @@
+This system is made for second semester of second year of study in Vilnius university and is based on Todoist project management system.
+A user can register and create an account, add his Todoist API key.
+The system then would sink itself with Todoist, creating visible projects and tasks of the user.
+He could then see various additional information about the system in addition to being able to see the changes he does in Todoist itself.
+In addition to that, data analysis and visualisation in charts is also in the system.
