@@ -10,7 +10,7 @@ class Command(BaseCommand):
     def handle(self,*args,**options):
         users = User.objects.all()
         for user in users:
-            if user.userprofile.token is not None:
+            if user.userprofile.token is not None and user.userprofile.token != "failure":
                 views.resyncing(user.userprofile.token, user.userprofile)
                 views.i_am_check(user.userprofile.token,user.userprofile.old_versions_count)
                 views.syncTodoist(user.userprofile.token, user.userprofile)

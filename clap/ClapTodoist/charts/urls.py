@@ -5,7 +5,7 @@ from . import views
 app_name = 'charts'
 
 urlpatterns = [
-    url(r'^stacked/$', views.stackedCompUncompBar.as_view(), name='CompUncompTasks'),
-    url(r'^diff/$', views.dbDiff.as_view(), name='Database Differences'),
+    # url(r'^stacked/$', views.stackedCompUncompBar.as_view(), name='CompUncompTasks'),
+    # url(r'^diff/$', views.dbDiff.as_view(), name='Database Differences'),
 
 ]
